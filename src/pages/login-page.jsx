@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Link } from "react-router-dom";
+import { withRouter,Link } from "react-router-dom";
 import { ToastsContainer, ToastsStore } from "react-toasts";
 import {
   Col,

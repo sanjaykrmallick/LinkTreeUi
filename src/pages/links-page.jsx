@@ -34,9 +34,15 @@ class Links extends Component {
       title: "",
       url: "",
     },
+    isDirty: {
+      title: "",
+      url: "",
+    },
     findPageNull: false,
     pageContents: [],
     pageId: "",
+    errors:{},
+    dltModalId:""
   };
 
   componentDidMount() {
@@ -49,6 +55,7 @@ class Links extends Component {
           pageId: res.page._id,
         });
         console.log("some contents are there :", res);
+        console.log("this.props", this.props);
       }
     });
   }
@@ -63,15 +70,76 @@ class Links extends Component {
 
   _handleOnChange = (field, value) => {
     // debugger
-    const { contentData } = this.state;
-    contentData[field] = value;
-    this.setState({ contentData }, () => {
-      console.log("on chnge value ", this.state);
+    // const { contentData } = this.state;
+    // contentData[field] = value;
+    // this.setState({ contentData }, () => {
+    //   console.log("on chnge value ", this.state);
+    // });
+    const { contentData, isDirty } = this.state;
+    if (!value && typeof value === "number") {
+      contentData[field] = "";
+      isDirty[field] = true;
+      this.setState({ contentData, isDirty }, () => {
+        this._validateForm();
+        console.log(this.state);
+      });
+      return;
+    } else {
+      contentData[field] = value;
+    }
+    isDirty[field] = true;
+    this.setState({ contentData, isDirty }, () => {
+      this._validateForm();
+      console.log(this.state);
     });
   };
 
+  _validateForm() {
+    // debugger;
+    const { contentData, isDirty, errors } = this.state;
+    Object.keys(contentData).forEach((each) => {
+      switch (each) {
+        case "url": {
+          if (isDirty.url) {
+            if (!contentData.url.trim().length) {
+              errors.url = "*Required";
+            } else if (
+              contentData.url.trim().length &&
+              !new RegExp(
+                "(https?:\\//\\//(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\\//\\//(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})"
+              ).test(contentData.url)
+            ) {
+              errors.url = "*Enter a valid URL";
+            } else {
+              delete errors[each];
+              isDirty.url = false;
+            }
+          }
+          break;
+        }
+        case "title": {
+          if (isDirty.title) {
+            if (!contentData.title.trim().length) {
+              errors[each] = "* Please fill the above field";
+            } else {
+              delete errors[each];
+              isDirty.title = false;
+            }
+          }
+          break;
+        }
+        default: {
+          console.log("Error in validation_switch_case ");
+          break;
+        }
+      }
+    });
+    this.setState({ errors });
+    return Object.keys(errors).length ? errors : null;
+  }
+
   _addContentData = () => {
-    const { contentData, pageContents, pageId } = this.state;
+    const { contentData, pageContents, pageId} = this.state;
     if (this.state.findPageNull) {
       const createData = {
         contents: [
@@ -123,17 +191,22 @@ class Links extends Component {
         this.setState({ pageContents: res.page.contents });
         console.log("added data list: ", pageContents);
       });
+      this.setState({
+        contentData: {
+          title: "",
+          url: "",
+        },
+      });
     }
   };
+
   render() {
-    const { pageContents, contentData } = this.state;
+    const { pageContents, errors, dltModalId  } = this.state;
     const cardBodyData = () => {
-      debugger
       if (pageContents === undefined || pageContents === null) {
-         console.log("page is empty while displaying");
+        console.log("page is empty while displaying");
       } else {
-         return pageContents.map((data) => (
-          //  console.log("foreach:",data)
+        return pageContents.map((data) => (
           <Fragment>
             <div className='addedLinksWrap'>
               <div className='moveLink'>
@@ -157,7 +230,15 @@ class Links extends Component {
                   </Button>
                   <Button
                     className='delLinkBtn'
-                    onClick={() => this._toggleModal(2)}>
+                    onClick={() => {
+                      
+                      this.setState({dltModalId:data._id})
+                      this._toggleModal(2);
+                      deleteModal()
+                      
+                    }}
+                    // onClick={deleteModal()}
+                  >
                     <i className='fa fa-trash-o text-danger'></i>
                   </Button>
                 </div>
@@ -166,6 +247,28 @@ class Links extends Component {
           </Fragment>
         ));
       }
+    };
+    const showButton = () => {
+      if (pageContents === undefined || pageContents === null) {
+        console.log("page is empty while displaying");
+      } else {
+        return pageContents.map((data) => (
+          <Fragment>
+            <Button
+              key={data.content._id}
+              className='btnOrange'
+              onClick={() => window.open(`${data.content.url}`, "_blank")}>
+              {data.content.title}
+            </Button>
+          </Fragment>
+        ));
+      }
+    };
+    const deleteModal = () => {
+      // debugger
+      const filterModal = pageContents.filter((item)=>item._id !== dltModalId)
+      console.log(filterModal)
+      console.log(pageContents)
     };
 
     return (
@@ -207,13 +310,10 @@ class Links extends Component {
                         src={"assets/img/user-img-default.png"}
                       />
                     </Label>
-                    <h5>@johndoe</h5>
+                    <h5>{"@"}</h5>
                   </div>
 
-                  <div className='mt-4'>
-                    <Button className='btnOrange'>LinkedIn</Button>
-                    <Button className='btnOrange'>Facebook</Button>
-                  </div>
+                  <div className='mt-4'>{showButton()}</div>
                 </div>{" "}
                 {/* profilePreview */}
               </div>
@@ -239,6 +339,13 @@ class Links extends Component {
                     this._handleOnChange("title", e.target.value)
                   }
                 />
+                {errors && (
+                      <Fragment>
+                        <small className='d-flex' style={{ color: "red" }}>
+                          {errors.title}
+                        </small>
+                      </Fragment>
+                    )}
               </FormGroup>
               <FormGroup>
                 <Label>URL</Label>
@@ -248,6 +355,13 @@ class Links extends Component {
                   value={this.state.contentData.url}
                   onChange={(e) => this._handleOnChange("url", e.target.value)}
                 />
+                {errors && (
+                      <Fragment>
+                        <small className='d-flex' style={{ color: "red" }}>
+                          {errors.url}
+                        </small>
+                      </Fragment>
+                    )}
               </FormGroup>
             </ModalBody>
             <ModalFooter>
@@ -288,7 +402,9 @@ class Links extends Component {
               </Button>
               <Button
                 className='modalBtnSave'
-                toggle={() => this._toggleModal(2)}>
+                toggle={() => this._toggleModal(2)}
+                //onclick
+              >
                 Delete
               </Button>
             </ModalFooter>

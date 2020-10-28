@@ -132,7 +132,7 @@ class Links extends Component {
       if (pageContents === undefined || pageContents === null) {
          console.log("page is empty while displaying");
       } else {
-         pageContents.map((data) => (
+         return pageContents.map((data) => (
           //  console.log("foreach:",data)
           <Fragment>
             <div className='addedLinksWrap'>

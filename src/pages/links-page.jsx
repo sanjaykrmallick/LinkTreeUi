@@ -1,4 +1,6 @@
 import React, { Component, Fragment } from "react";
+import ReactDOM from "react-dom";
+
 import {
   Col,
   Container,
@@ -32,61 +34,23 @@ class Links extends Component {
       title: "",
       url: "",
     },
+    findPageNull: false,
+    pageContents: [],
+    pageId: "",
   };
 
   componentDidMount() {
     findPage().then((res) => {
-      console.log("find_page: ", res);
-      if (res.page === null || res.page === undefined) {
-        return console.log("err at find page");
+      if (res.page === null) {
+        this.setState({ findPageNull: true });
       } else {
-        if (res.page.contents.length) {
-          let contentDataList = res.page.contents;
-          let contentData = {
-            content: contentDataList,
-          };
-          console.log("contentData: ", contentData);
-          this.props.addContent(contentData);
-          this.props.addId(res.page.id);
-          //check response.page is null do nothing
-          //if resonse.page and response.contents then do
-        }
+        this.setState({
+          pageContents: res.page.contents,
+          pageId: res.page._id,
+        });
+        console.log("some contents are there :", res);
       }
     });
-    this._displayPreData();
-  }
-
-  _displayPreData() {
-    if (!this.props.contentData.contents.length) {
-      const contentDatas = {
-        contents: [
-          {
-            content: {
-              title: this.state.contentData.title,
-              url: this.state.contentData.url,
-            },
-            contentType: "socialLink",
-            subContentType: "twitch",
-          },
-        ],
-      };
-      createPage(contentDatas).then((res) => {
-        // create page
-        if (!res.error) {
-          const contentData = {
-            content: res.page.contents,
-          };
-          this.props.addContent(contentData);
-          this.props.addId(res.page.id);
-          this.setState({
-            contentData: {
-              title: "",
-              url: "",
-            },
-          });
-        }
-      });
-    }
   }
 
   _toggleModal = (index) => {
@@ -102,83 +66,106 @@ class Links extends Component {
     const { contentData } = this.state;
     contentData[field] = value;
     this.setState({ contentData }, () => {
-      // console.log(this.state);
+      console.log("on chnge value ", this.state);
     });
   };
 
   _addContentData = () => {
-    debugger;
-    console.log(this.props);
-    const contents = this.props.contentData.contents;
-    console.log("this.props.contentData.contents:", contents);
-    const contentDatas = [
-      ...contents,
-      {
-        content: {
-          title: this.state.contentData.title,
-          url: this.state.contentData.url,
-        },
-        contentType: "socialLink",
-        subContentType: "twitch",
-      },
-    ];
-    const obj = {
-      contents: contentDatas,
-    };
-    createContent(obj, this.props.contentData.id).then((res) => {
-      const lastContent = res.page.contents[res.page.contents.length - 1];
-      const content = {
-        content: lastContent,
+    const { contentData, pageContents, pageId } = this.state;
+    if (this.state.findPageNull) {
+      const createData = {
+        contents: [
+          {
+            content: {
+              title: contentData.title,
+              url: contentData.url,
+            },
+            contentType: "socialLink",
+            subContentType: "facebook",
+          },
+        ],
       };
-      this.props.addContent(content);
-    });
-    this._toggleModal(1);
+      createPage(createData).then((res) => {
+        console.log("createPage :", res);
+        if (!res.error) {
+          this.setState({ pageContents: res.page.contents });
+          // this.props.addContent();
+          // this.props.addId(res.page.id);
+          this.setState({
+            contentData: {
+              title: "",
+              url: "",
+            },
+          });
+        }
+      });
+    } else {
+      console.log("page is already created");
+      const updateData = [
+        ...pageContents,
+        {
+          content: {
+            title: contentData.title,
+            url: contentData.url,
+          },
+          contentType: "socialLink",
+          subContentType: "facebook",
+        },
+      ];
+      const obj = {
+        contents: updateData,
+      };
+      createContent(obj, pageId).then((res) => {
+        console.log("createContent: ", res);
+        const lastContent = res.page.contents[res.page.contents.length - 1];
+        console.log("LastContent:", lastContent);
+        // this.props.addContent(content);
+        this.setState({ pageContents: res.page.contents });
+        console.log("added data list: ", pageContents);
+      });
+    }
   };
-
   render() {
+    const { pageContents, contentData } = this.state;
     const cardBodyData = () => {
-      // if (
-      //   this.props.contentData === undefined ||
-      //   this.props.contentData === null
-      // ) {
-      //   return <Fragment></Fragment>;
-      // } else { return(
-      console.log(this.props.contentData.contents);
-      this.props.contentData.contents.map((data) => (
-        <Fragment></Fragment>
-        // <Fragment>
-        //   <div className='addedLinksWrap'>
-        //     <div className='moveLink'>
-        //       <i className='fa fa-ellipsis-v'></i>
-        //     </div>
-        //     <div className='addedLinkDetails'>
-        //       <h5>{data.content.title}</h5>
-        //       <p>{data.content.url}</p>
-        //       <div className='actionBtnWrap'>
-        //         <CustomInput
-        //           type='switch'
-        //           id='exampleCustomSwitch'
-        //           name='customSwitch'
-        //           label=''
-        //           checked
-        //           className='disableLink'
-        //         />
+      debugger
+      if (pageContents === undefined || pageContents === null) {
+         console.log("page is empty while displaying");
+      } else {
+         pageContents.map((data) => (
+          //  console.log("foreach:",data)
+          <Fragment>
+            <div className='addedLinksWrap'>
+              <div className='moveLink'>
+                <i className='fa fa-ellipsis-v'></i>
+              </div>
+              <div className='addedLinkDetails'>
+                <h5>{data.content.title}</h5>
+                <p>{data.content.url}</p>
+                <div className='actionBtnWrap'>
+                  <CustomInput
+                    type='switch'
+                    id='exampleCustomSwitch'
+                    name='customSwitch'
+                    label=''
+                    checked
+                    className='disableLink'
+                  />
 
-        //         <Button className='delLinkBtn'>
-        //           <i className='fa fa-pencil'></i>
-        //         </Button>
-        //         <Button
-        //           className='delLinkBtn'
-        //           onClick={() => this._toggleModal(2)}>
-        //           <i className='fa fa-trash-o text-danger'></i>
-        //         </Button>
-        //       </div>
-        //     </div>
-        //   </div>
-        // </Fragment>
-      ));
-      // );
-      // }
+                  <Button className='delLinkBtn'>
+                    <i className='fa fa-pencil'></i>
+                  </Button>
+                  <Button
+                    className='delLinkBtn'
+                    onClick={() => this._toggleModal(2)}>
+                    <i className='fa fa-trash-o text-danger'></i>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Fragment>
+        ));
+      }
     };
 
     return (
@@ -198,7 +185,13 @@ class Links extends Component {
                 </div>
 
                 <Card className='userDetails mb-4'>
-                  <CardBody>{cardBodyData()}</CardBody>
+                  <CardBody>
+                    {this.state.findPageNull ? (
+                      <Fragment>NO LINKS AVAILABLE</Fragment>
+                    ) : (
+                      cardBodyData()
+                    )}
+                  </CardBody>
                 </Card>
               </div>
 

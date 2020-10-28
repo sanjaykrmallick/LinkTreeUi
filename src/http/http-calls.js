@@ -80,7 +80,7 @@ export const login = loginData => {
 export const findPage = () => {
   return new Promise((resolve, reject) => {
     makeGetRequest(
-      BASE_URL + "/pages",
+      BASE_URL + "/page",
       true
     )
       .then(res => {
@@ -110,12 +110,12 @@ export const createContent = (contentData, id) => {
   });
 };
 
-export const createPage = (contentData) => { // pagecreate
+export const createPage = (createData) => { // pagecreate
   return new Promise((resolve, reject) => {
     makePostRequest(
       BASE_URL + "/page",
       true,
-      contentData
+      createData
     )
       .then(res => {
         resolve(res);

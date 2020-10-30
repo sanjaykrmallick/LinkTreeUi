@@ -90,7 +90,7 @@ class ForgotPassword extends Component {
       console.log(errors);
       if(!errors){
         const forgot_passData={
-          email: userData.email,
+          handle: userData.email,
         }
         forgot_pass(forgot_passData).then(res=>console.log(res));
         ToastsStore.success(`Please Check Your Email: ${userData.email} for changing Password`);

@@ -84,7 +84,7 @@ class RequestDemo extends Component {
     this.setState({ activeIndex: newIndex });
   }
 
-  login = (e) => {
+  _signUp = (e) => {
     e.preventDefault();
     let isDirty ={
       email:true,
@@ -109,6 +109,9 @@ class RequestDemo extends Component {
     });
     // this.props.history.push("/login");
   };
+  login=()=>{
+    this.props.history.push("/login");
+  }
 
   _handleOnChange = (field, value) => {
     // debugger
@@ -173,7 +176,8 @@ class RequestDemo extends Component {
             } else if (
               userData.password.trim().length &&
               !new RegExp(
-                `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$`
+                // `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$`
+                `^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$`
               ).test(userData.password)
             ) {
               errors.password = "*Invalid Password";
@@ -327,10 +331,10 @@ class RequestDemo extends Component {
                   <FormGroup className='position-relative'>
                     <Label>Password</Label>
                     <Input
-                      type='text'
+                      type='password'
                       placeholder='Enter Password'
                       style={{ paddingRight: 35 }}
-                      title='Minimum eight characters, at least one uppercase letter, one lowercase letter and one number'
+                      title='Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.'
                       value={userData.password}
                       onChange={(e) =>
                         this._handleOnChange("password", e.target.value)
@@ -353,10 +357,10 @@ class RequestDemo extends Component {
                   <FormGroup className='position-relative'>
                     <Label>Repeat Password</Label>
                     <Input
-                      type='text'
+                      type='password'
                       placeholder='Repeat Password'
                       style={{ paddingRight: 35 }}
-                      title='Minimum eight characters, at least one uppercase letter, one lowercase letter and one number'
+                      title='Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.'
                       value={userData.re_password}
                       onChange={(e) =>
                         this._handleOnChange("re_password", e.target.value)
@@ -380,7 +384,7 @@ class RequestDemo extends Component {
                   <Button
                     className='recruitechThemeBtn loginBtn'
                     style={{ marginTop: 30 }}
-                    onClick={this.login}>
+                    onClick={this._signUp}>
                     Get Started
                   </Button>
                 </Form>

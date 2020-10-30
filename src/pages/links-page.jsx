@@ -41,8 +41,11 @@ class Links extends Component {
     findPageNull: false,
     pageContents: [],
     pageId: "",
-    errors:{},
-    dltModalId:""
+    errors: {},
+    dltModalId: "",
+    addLinkFlag: false,
+    editLinkFlag: false,
+    edtModalId: "",
   };
 
   componentDidMount() {
@@ -69,12 +72,6 @@ class Links extends Component {
   };
 
   _handleOnChange = (field, value) => {
-    // debugger
-    // const { contentData } = this.state;
-    // contentData[field] = value;
-    // this.setState({ contentData }, () => {
-    //   console.log("on chnge value ", this.state);
-    // });
     const { contentData, isDirty } = this.state;
     if (!value && typeof value === "number") {
       contentData[field] = "";
@@ -93,7 +90,7 @@ class Links extends Component {
       console.log(this.state);
     });
   };
-
+  // onsubmit for modal
   _validateForm() {
     // debugger;
     const { contentData, isDirty, errors } = this.state;
@@ -139,7 +136,7 @@ class Links extends Component {
   }
 
   _addContentData = () => {
-    const { contentData, pageContents, pageId} = this.state;
+    const { contentData, pageContents, pageId } = this.state;
     if (this.state.findPageNull) {
       const createData = {
         contents: [
@@ -184,9 +181,9 @@ class Links extends Component {
         contents: updateData,
       };
       createContent(obj, pageId).then((res) => {
-        console.log("createContent: ", res);
+        console.log("createContentLst: ", res);
         const lastContent = res.page.contents[res.page.contents.length - 1];
-        console.log("LastContent:", lastContent);
+        console.log("newAddedContent:", lastContent);
         // this.props.addContent(content);
         this.setState({ pageContents: res.page.contents });
         console.log("added data list: ", pageContents);
@@ -196,14 +193,68 @@ class Links extends Component {
           title: "",
           url: "",
         },
+        addLinkFlag: false,
       });
     }
   };
 
+  _handleToggle = (flag, _id) => {
+    const { pageContents, pageId } = this.state;
+    if (flag) {
+      pageContents.map((e) => {
+        if (_id === e._id) {
+          e.status = true;
+        }
+        //setstate and APi
+        this.setState({ pageContents });
+        const obj = {
+          contents: pageContents,
+        };
+        createContent(obj, pageId).then((res) => {
+          console.log("createContentLst: ", res);
+          const lastContent = res.page.contents[res.page.contents.length - 1];
+          console.log("newAddedContent:", lastContent);
+          // this.props.addContent(content);
+          this.setState({ pageContents: res.page.contents });
+          console.log("added data list: ", pageContents);
+        });
+      });
+    } else {
+      pageContents.map((e) => {
+        if (_id === e._id) {
+          e.status = false;
+        }
+        //setstate and APi
+        this.setState({ pageContents });
+        const obj = {
+          contents: pageContents,
+        };
+        createContent(obj, pageId).then((res) => {
+          console.log("createContentLst: ", res);
+          const lastContent = res.page.contents[res.page.contents.length - 1];
+          console.log("newAddedContent:", lastContent);
+          // this.props.addContent(content);
+          this.setState({ pageContents: res.page.contents });
+          console.log("added data list: ", pageContents);
+        });
+      });
+    }
+    console.log(pageContents);
+  };
+
   render() {
-    const { pageContents, errors, dltModalId  } = this.state;
+    const {
+      pageContents,
+      errors,
+      dltModalId,
+      pageId,
+      addLinkFlag,
+      edtModalId,
+      contentData,
+    } = this.state;
     const cardBodyData = () => {
       if (pageContents === undefined || pageContents === null) {
+        //|| pageContents[0].content.title===null || pageContents[0].content.url===null || pageContents[0].content.title===undefined || pageContents[0].content.url===undefined
         console.log("page is empty while displaying");
       } else {
         return pageContents.map((data) => (
@@ -218,24 +269,34 @@ class Links extends Component {
                 <div className='actionBtnWrap'>
                   <CustomInput
                     type='switch'
-                    id='exampleCustomSwitch'
+                    id={"exampleCustomSwitch" + data._id}
                     name='customSwitch'
                     label=''
-                    checked
+                    checked={data.status}
                     className='disableLink'
+                    key={data._id}
+                    onClick={(e) =>
+                      this._handleToggle(e.target.checked, data._id)
+                    }
                   />
 
-                  <Button className='delLinkBtn'>
+                  <Button
+                    className='delLinkBtn'
+                    onClick={() => {
+                      this.setState({
+                        edtModalId: data._id,
+                        editLinkFlag: true,
+                      });
+                      this._toggleModal(1);
+                    }}>
                     <i className='fa fa-pencil'></i>
                   </Button>
                   <Button
                     className='delLinkBtn'
                     onClick={() => {
-                      
-                      this.setState({dltModalId:data._id})
+                      this.setState({ dltModalId: data._id });
                       this._toggleModal(2);
-                      deleteModal()
-                      
+                      deleteModal();
                     }}
                     // onClick={deleteModal()}
                   >
@@ -265,10 +326,59 @@ class Links extends Component {
       }
     };
     const deleteModal = () => {
-      // debugger
-      const filterModal = pageContents.filter((item)=>item._id !== dltModalId)
-      console.log(filterModal)
-      console.log(pageContents)
+      if (pageContents === null || pageContents === undefined) {
+        return console.log("No Link item present");
+      } else {
+        var index = pageContents.findIndex((item) => item._id === dltModalId);
+        pageContents.splice(index, 1);
+        console.log("new list after delete: ", pageContents);
+        const obj = {
+          contents: pageContents,
+        };
+        createContent(obj, pageId).then((res) => {
+          debugger;
+          console.log("deletedContent: ", res);
+          const lastContent = res.page.contents[res.page.contents.length - 1];
+          console.log("LastContent:", lastContent);
+          this.setState({ pageContents: res.page.contents });
+          console.log("New data list: ", pageContents);
+        });
+      }
+    };
+    const editModal = () => {
+      if (pageContents === null || pageContents === undefined) {
+        return console.log("No Link item present");
+      } else {
+        alert("editmodal");
+        var index = pageContents.findIndex((item) => item._id === edtModalId);
+        console.log(index);
+        const editedContent = {
+          content: {
+            title: contentData.title,
+            url: contentData.url,
+          },
+        };
+        pageContents.splice(index, 1, editedContent);
+        console.log(pageContents)
+        const obj = {
+          contents: pageContents,
+        };
+        createContent(obj, pageId).then((res) => {
+          console.log("createContentLst: ", res);
+          const lastContent = res.page.contents[res.page.contents.length - 1];
+          console.log("newAddedContent:", lastContent);
+          // this.props.addContent(content);
+          this.setState({ pageContents: res.page.contents });
+          console.log("added data list: ", pageContents);
+        });
+        this.setState({
+          contentData: {
+            title: "",
+            url: "",
+          },
+          editLinkFlag: false,
+        });
+      }
     };
 
     return (
@@ -282,7 +392,10 @@ class Links extends Component {
 
                   <Button
                     className='addBtn'
-                    onClick={() => this._toggleModal(1)}>
+                    onClick={() => {
+                      this.setState({ addLinkFlag: true });
+                      this._toggleModal(1);
+                    }}>
                     <i className='fa fa-plus mr-1'></i> Add New Link
                   </Button>
                 </div>
@@ -310,7 +423,7 @@ class Links extends Component {
                         src={"assets/img/user-img-default.png"}
                       />
                     </Label>
-                    <h5>{"@"}</h5>
+                    <h5>{`@${this.props.userData.userName}`}</h5>
                   </div>
 
                   <div className='mt-4'>{showButton()}</div>
@@ -340,12 +453,12 @@ class Links extends Component {
                   }
                 />
                 {errors && (
-                      <Fragment>
-                        <small className='d-flex' style={{ color: "red" }}>
-                          {errors.title}
-                        </small>
-                      </Fragment>
-                    )}
+                  <Fragment>
+                    <small className='d-flex' style={{ color: "red" }}>
+                      {errors.title}
+                    </small>
+                  </Fragment>
+                )}
               </FormGroup>
               <FormGroup>
                 <Label>URL</Label>
@@ -356,12 +469,12 @@ class Links extends Component {
                   onChange={(e) => this._handleOnChange("url", e.target.value)}
                 />
                 {errors && (
-                      <Fragment>
-                        <small className='d-flex' style={{ color: "red" }}>
-                          {errors.url}
-                        </small>
-                      </Fragment>
-                    )}
+                  <Fragment>
+                    <small className='d-flex' style={{ color: "red" }}>
+                      {errors.url}
+                    </small>
+                  </Fragment>
+                )}
               </FormGroup>
             </ModalBody>
             <ModalFooter>
@@ -374,7 +487,9 @@ class Links extends Component {
               <Button
                 className='modalBtnSave'
                 toggle={() => this._toggleModal(1)}
-                onClick={() => this._addContentData()}>
+                onClick={() => {
+                  addLinkFlag ? this._addContentData() : editModal();
+                }}>
                 Create
               </Button>
             </ModalFooter>
@@ -418,6 +533,7 @@ class Links extends Component {
 const mapStateToProps = (state) => {
   return {
     contentData: state.contentData,
+    userData: state.userData,
   };
 };
 

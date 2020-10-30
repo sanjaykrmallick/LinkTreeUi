@@ -158,7 +158,7 @@ class Login extends Component {
             } else if (
               userData.password.trim().length &&
               !new RegExp(
-                `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$`
+                `^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$`
               ).test(userData.password)
             ) {
               errors.password = "*Invalid Password";
@@ -272,7 +272,7 @@ class Login extends Component {
                     <Input
                       type='password'
                       placeholder='Your Password'
-                      title='Minimum eight characters, at least one uppercase letter, one lowercase letter and one number'
+                      title='Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.'
                       value={userData.email}
                       onChange={(e) =>
                         this._handleOnChange("password", e.target.value.trim())

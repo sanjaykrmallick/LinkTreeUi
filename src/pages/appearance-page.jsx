@@ -64,7 +64,7 @@ class Appearance extends Component {
           <Fragment>
             <Button
               key={data.content._id}
-              className='btnOrange'
+              className={selectedTheme==="Moon"?"btnOrange btn btnMoon":(selectedTheme==="Dark"||selectedTheme==="Scooter"?"btnOrange btn btnLight":(selectedTheme==="Leaf"?"btnOrange btn btnLeaf":"btnOrange"))}
               onClick={() => window.open(`${data.content.url}`, "_blank")}>
               {data.content.title}
             </Button>
@@ -72,6 +72,7 @@ class Appearance extends Component {
         ));
       }
     };
+    // 'btnOrange btn btnLeaf'
     return (
       <div className='app flex-row animated fadeIn innerPagesBg'>
         <Container>
@@ -200,7 +201,8 @@ class Appearance extends Component {
                       )}
                     </Label>
                     {/* use class text-white in Dark and Scooter theme*/}
-                      <h5 className='text-black'>{`@${this.props.userData.userName}`}</h5>
+                      {/* <h5 className='text-black'>{`@${this.props.userData.userName}`}</h5> */}
+                      <h5 className={selectedTheme==="Dark"|| selectedTheme==="Scooter"?"text-white":"text-black"}>{`@${this.props.userData.userName}`}</h5>
                   </div>
 
                   <div className='mt-4'>

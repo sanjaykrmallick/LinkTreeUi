@@ -14,7 +14,7 @@ import {
   FormGroup,
   Label,
 } from "reactstrap";
-import { signUp } from "../http/http-calls";
+import { signUp, checkUsername } from "../http/http-calls";
 import { ToastsContainer, ToastsStore } from "react-toasts";
 const items = [
   {
@@ -42,7 +42,8 @@ class RequestDemo extends Component {
         re_password: "",
       },
       errors: {},
-      isAvail:false, 
+      isAvail: false,
+      type: "password",
     };
     this.next = this.next.bind(this);
     this.previous = this.previous.bind(this);
@@ -86,32 +87,30 @@ class RequestDemo extends Component {
 
   _signUp = (e) => {
     e.preventDefault();
-    let isDirty ={
-      email:true,
+    let isDirty = {
+      email: true,
       password: true,
     };
-    this.setState({isDirty},()=>{
-      
-      let errors =this._validateForm();
+    this.setState({ isDirty }, () => {
+      let errors = this._validateForm();
       console.log(errors);
-      if(!errors){
-        const signupData={
+      if (!errors) {
+        const signupData = {
           email: this.state.userData.email,
-          userName:this.state.userData.username,
-          password:this.state.userData.password,
-        }
-        signUp(signupData).then(res=>console.log(res));
+          userName: this.state.userData.username,
+          password: this.state.userData.password,
+        };
+        signUp(signupData).then((res) => console.log(res));
         ToastsStore.success("Successfully Signed-Up ");
-      }
-      else{
-        ToastsStore.error("Problem in Sign-Up")
+      } else {
+        ToastsStore.error("Problem in Sign-Up");
       }
     });
     // this.props.history.push("/login");
   };
-  login=()=>{
+  login = () => {
     this.props.history.push("/login");
-  }
+  };
 
   _handleOnChange = (field, value) => {
     // debugger
@@ -136,7 +135,7 @@ class RequestDemo extends Component {
 
   _validateForm() {
     // debugger;
-    const { userData, isDirty, errors } = this.state;
+    const { userData, isDirty, errors, isAvail } = this.state;
     Object.keys(userData).forEach((each) => {
       switch (each) {
         case "email": {
@@ -158,11 +157,15 @@ class RequestDemo extends Component {
           break;
         }
         case "username": {
+          const obj = {
+            userName: userData.username,
+          };
           if (isDirty.username) {
             if (!userData.username.trim().length) {
               errors[each] = "* Please fill the above field";
-            }
-            else {
+            } else if (!(this.checkUser(obj) && isAvail)) {
+              errors[each] = "Enter Unique Username";
+            } else {
               delete errors[each];
               isDirty.username = false;
             }
@@ -180,7 +183,7 @@ class RequestDemo extends Component {
                 `^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$`
               ).test(userData.password)
             ) {
-              errors.password = "*Invalid Password";
+              errors.password = "*Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.";
             } else {
               delete errors[each];
               isDirty.password = false;
@@ -192,13 +195,11 @@ class RequestDemo extends Component {
           if (isDirty.re_password) {
             if (!userData.re_password.trim().length) {
               errors.re_password = "*Required";
-            } 
-            else if (
+            } else if (
               userData.re_password.trim().length &&
               userData.re_password !== userData.password
             ) {
               errors.re_password = "Password not matched";
-            
             } else {
               delete errors[each];
               isDirty.re_password = false;
@@ -234,8 +235,27 @@ class RequestDemo extends Component {
     });
   };
 
+  checkUser = (userName) => {
+    checkUsername(userName).then((res) => {
+      if (res.isAvailable) {
+        this.setState({
+          isAvail: true,
+        });
+      } else {
+        this.setState({
+          isAvail: false,
+        });
+      }
+    });
+    return true;
+  };
+  handleClick = () =>
+    this.setState(({ type }) => ({
+      type: type === "password" ? "text" : "password",
+    }));
+
   render() {
-    const { activeIndex, userData, errors } = this.state;
+    const { activeIndex, userData, errors, isAvail, type } = this.state;
 
     const slides2 = items.map((item) => {
       return (
@@ -285,7 +305,9 @@ class RequestDemo extends Component {
               />
 
               <div className='w-100 justify-content-center d-flex flex-column align-items-center'>
-                <Form className='loginFormWrapper requestDemoForm' onSubmit={this._handleOnSubmit} >
+                <Form
+                  className='loginFormWrapper requestDemoForm'
+                  onSubmit={this._handleOnSubmit}>
                   <h4>Sign Up</h4>
 
                   <FormGroup>
@@ -308,7 +330,7 @@ class RequestDemo extends Component {
                     )}
                   </FormGroup>
 
-                  <FormGroup>
+                  <FormGroup className='position-relative'>
                     <Label>Username</Label>
                     <Input
                       type='text'
@@ -318,6 +340,29 @@ class RequestDemo extends Component {
                         this._handleOnChange("username", e.target.value)
                       }
                     />
+                    {/* eye icon for viewing the entered password */}
+
+                    {/* toggle the above icon with the below icon */}
+
+                    {isAvail ? (
+                      <span
+                        className='fa fa-check-circle'
+                        style={{
+                          position: "absolute",
+                          marginLeft: "95%",
+                          marginTop:"-5%",
+                          color:"green",
+                        }}></span>
+                    ) : (
+                      <span
+                        className='fa fa-times-circle'
+                        style={{
+                          position: "absolute",
+                          marginLeft: "95%",
+                          marginTop:"-5%",
+                          color:"red",
+                        }}></span>
+                    )}
                     {/* error msg, currently hidden */}
                     {errors && (
                       <Fragment>
@@ -331,7 +376,7 @@ class RequestDemo extends Component {
                   <FormGroup className='position-relative'>
                     <Label>Password</Label>
                     <Input
-                      type='password'
+                      type={type}
                       placeholder='Enter Password'
                       style={{ paddingRight: 35 }}
                       title='Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.'
@@ -341,6 +386,17 @@ class RequestDemo extends Component {
                       }
                       required
                     />
+
+                    <span onClick={this.handleClick} style={{
+                          position: "absolute",
+                          marginLeft:"100%" 
+                        }}>
+                      {type === "password" ? (
+                        <span className='fa fa-eye-slash eyeIcon'></span>
+                      ) : (
+                        <span className='fa fa-eye eyeIcon '></span>
+                      )}
+                    </span>
                     {/* error msg, currently hidden */}
                     {errors && (
                       <Fragment>
@@ -349,15 +405,11 @@ class RequestDemo extends Component {
                         </small>
                       </Fragment>
                     )}
-                    {/* eye icon for viewing the entered password */}
-                    <span className='fa fa-eye-slash eyeIcon'></span>
-                    {/* toggle the above icon with the below icon */}
-                    <span className='fa fa-eye eyeIcon d-none'></span>
                   </FormGroup>
                   <FormGroup className='position-relative'>
                     <Label>Repeat Password</Label>
                     <Input
-                      type='password'
+                      type={type}
                       placeholder='Repeat Password'
                       style={{ paddingRight: 35 }}
                       title='Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.'
@@ -367,6 +419,16 @@ class RequestDemo extends Component {
                       }
                       required
                     />
+                    <span onClick={this.handleClick} style={{
+                          position: "absolute",
+                          marginLeft:"100%" 
+                        }}>
+                      {type === "password" ? (
+                        <span className='fa fa-eye-slash eyeIcon'></span>
+                      ) : (
+                        <span className='fa fa-eye eyeIcon '></span>
+                      )}
+                    </span>
                     {/* error msg, currently hidden */}
                     {errors && (
                       <Fragment>
@@ -375,10 +437,7 @@ class RequestDemo extends Component {
                         </small>
                       </Fragment>
                     )}
-                    {/* eye icon for viewing the entered password */}
-                    <span className='fa fa-eye-slash eyeIcon'></span>
-                    {/* toggle the above icon with the below icon */}
-                    <span className='fa fa-eye eyeIcon d-none'></span>
+                    
                   </FormGroup>
 
                   <Button

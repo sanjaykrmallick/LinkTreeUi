@@ -23,6 +23,7 @@ import {
   editContent,
   removeContent,
   addId,
+  // userContents
 } from "../redux/actions/content_data";
 import { connect } from "react-redux";
 import { ToastsStore } from "react-toasts";
@@ -46,9 +47,11 @@ class Links extends Component {
     addLinkFlag: false,
     editLinkFlag: false,
     edtModalId: "",
+    contentDatanull: false,
   };
 
   componentDidMount() {
+    const { pageContents } = this.state;
     findPage().then((res) => {
       if (res.page === null) {
         this.setState({ findPageNull: true });
@@ -58,9 +61,14 @@ class Links extends Component {
           pageId: res.page._id,
         });
         console.log("some contents are there :", res);
-        console.log("this.props", this.props);
-      }
+        this.props.addContent(res.page.contents);
+        console.log("this.props", this.props) 
+      }   
     });
+    // localStorage.setItem("pageContents",JSON.stringify(...pageContents))
+    console.log(pageContents)
+    
+    // localStorage.setItem("pageContents",[pageContents]) //
   }
 
   _toggleModal = (index) => {
@@ -137,7 +145,16 @@ class Links extends Component {
 
   _addContentData = () => {
     const { contentData, pageContents, pageId } = this.state;
-    if (this.state.findPageNull) {
+    if (
+      contentData.url === null ||
+      contentData.title === null ||
+      contentData.url === undefined ||
+      contentData.title === undefined ||
+      contentData.url === "" ||
+      contentData.title === ""
+    ) {
+      this.setState({ contentDatanull: true });
+    } else if (this.state.findPageNull) {
       const createData = {
         contents: [
           {
@@ -184,7 +201,6 @@ class Links extends Component {
         console.log("createContentLst: ", res);
         const lastContent = res.page.contents[res.page.contents.length - 1];
         console.log("newAddedContent:", lastContent);
-        // this.props.addContent(content);
         this.setState({ pageContents: res.page.contents });
         console.log("added data list: ", pageContents);
       });
@@ -196,6 +212,8 @@ class Links extends Component {
         addLinkFlag: false,
       });
     }
+    // this.props.addContent(pageContents); //
+    this.props.addContent(pageContents);
   };
 
   _handleToggle = (flag, _id) => {
@@ -233,13 +251,14 @@ class Links extends Component {
           console.log("createContentLst: ", res);
           const lastContent = res.page.contents[res.page.contents.length - 1];
           console.log("newAddedContent:", lastContent);
-          // this.props.addContent(content);
+          this.props.addContent();
           this.setState({ pageContents: res.page.contents });
           console.log("added data list: ", pageContents);
         });
       });
     }
     console.log(pageContents);
+    // this.props.addContent(pageContents); //
   };
 
   render() {
@@ -257,62 +276,69 @@ class Links extends Component {
         //|| pageContents[0].content.title===null || pageContents[0].content.url===null || pageContents[0].content.title===undefined || pageContents[0].content.url===undefined
         console.log("page is empty while displaying");
       } else {
-        return pageContents.map((data) => (
-          <Fragment>
-            <div className='addedLinksWrap'>
-              <div className='moveLink'>
-                <i className='fa fa-ellipsis-v'></i>
-              </div>
-              <div className='addedLinkDetails'>
-                <h5>{data.content.title}</h5>
-                <p>{data.content.url}</p>
-                <div className='actionBtnWrap'>
-                  <CustomInput
-                    type='switch'
-                    id={"exampleCustomSwitch" + data._id}
-                    name='customSwitch'
-                    label=''
-                    checked={data.status}
-                    className='disableLink'
-                    key={data._id}
-                    onClick={(e) =>
-                      this._handleToggle(e.target.checked, data._id)
-                    }
-                  />
+        return pageContents.map((data) => {
+          if (data.content.url === "" || data.content.title === "") {
+            return false;
+          } else {
+            return (
+              <Fragment>
+                <div className='addedLinksWrap'>
+                  <div className='moveLink'>
+                    <i className='fa fa-ellipsis-v'></i>
+                  </div>
+                  <div className='addedLinkDetails'>
+                    <h5>{data.content.title}</h5>
+                    <p>{data.content.url}</p>
+                    <div className='actionBtnWrap'>
+                      <CustomInput
+                        type='switch'
+                        id={"exampleCustomSwitch" + data._id}
+                        name='customSwitch'
+                        label=''
+                        checked={data.status}
+                        className='disableLink'
+                        key={data._id}
+                        onClick={(e) =>
+                          this._handleToggle(e.target.checked, data._id)
+                        }
+                      />
 
-                  <Button
-                    className='delLinkBtn'
-                    onClick={() => {
-                      this.setState({
-                        edtModalId: data._id,
-                        editLinkFlag: true,
-                      });
-                      this._toggleModal(1);
-                    }}>
-                    <i className='fa fa-pencil'></i>
-                  </Button>
-                  <Button
-                    className='delLinkBtn'
-                    onClick={() => {
-                      this.setState({ dltModalId: data._id });
-                      this._toggleModal(2);
-                      deleteModal();
-                    }}
-                    // onClick={deleteModal()}
-                  >
-                    <i className='fa fa-trash-o text-danger'></i>
-                  </Button>
+                      <Button
+                        className='delLinkBtn'
+                        onClick={() => {
+                          this.setState({
+                            edtModalId: data._id,
+                            editLinkFlag: true,
+                          });
+                          this._toggleModal(1);
+                        }}>
+                        <i className='fa fa-pencil'></i>
+                      </Button>
+                      <Button
+                        className='delLinkBtn'
+                        onClick={() => {
+                          this.setState({ dltModalId: data._id });
+                          this._toggleModal(2);
+                          // deleteModal();
+                        }}
+                        // onClick={deleteModal()}
+                      >
+                        <i className='fa fa-trash-o text-danger'></i>
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </Fragment>
-        ));
+              </Fragment>
+            );
+          }
+        });
       }
     };
     const showButton = () => {
       if (pageContents === undefined || pageContents === null) {
         console.log("page is empty while displaying");
       } else {
+        // this.props.userContents(pageContents)
         return pageContents.map((data) => (
           <Fragment>
             <Button
@@ -344,12 +370,12 @@ class Links extends Component {
           console.log("New data list: ", pageContents);
         });
       }
+      // this.props.addContent(pageContents); //
     };
     const editModal = () => {
       if (pageContents === null || pageContents === undefined) {
         return console.log("No Link item present");
       } else {
-        alert("editmodal");
         var index = pageContents.findIndex((item) => item._id === edtModalId);
         console.log(index);
         const editedContent = {
@@ -359,7 +385,7 @@ class Links extends Component {
           },
         };
         pageContents.splice(index, 1, editedContent);
-        console.log(pageContents)
+        console.log(pageContents);
         const obj = {
           contents: pageContents,
         };
@@ -379,6 +405,7 @@ class Links extends Component {
           editLinkFlag: false,
         });
       }
+      // this.props.addContent(pageContents); //
     };
 
     return (
@@ -402,11 +429,14 @@ class Links extends Component {
 
                 <Card className='userDetails mb-4'>
                   <CardBody>
-                    {this.state.findPageNull ? (
-                      <Fragment>NO LINKS AVAILABLE</Fragment>
-                    ) : (
-                      cardBodyData()
-                    )}
+                    {
+                      this.state.findPageNull ? (
+                        <Fragment>NO LINKS AVAILABLE</Fragment>
+                      ) : (
+                        cardBodyData()
+                      )
+                      // ( contentData.title==="" || contentData.url==="" ? <Fragment></Fragment> :cardBodyData())
+                    }
                   </CardBody>
                 </Card>
               </div>
@@ -416,12 +446,25 @@ class Links extends Component {
                 <div className='profilePreview'>
                   <div className='text-center'>
                     <Label className='btn uploadBtnProfile'>
-                      <input type='file' style={{ display: "none" }} />
+                      {/* <input type='file' style={{ display: "none" }} />
                       <img
                         alt=''
                         className=''
                         src={"assets/img/user-img-default.png"}
-                      />
+                      /> */}
+                      {this.props.userData.avatarLink ? (
+                        <img
+                          src={this.props.userData.avatarLink}
+                          alt='chosen'
+                          style={{ height: "100px", width: "100px" }}
+                        />
+                      ) : (
+                        <img
+                          alt=''
+                          className=''
+                          src={"assets/img/user-img-default.png"}
+                        />
+                      )}
                     </Label>
                     <h5>{`@${this.props.userData.userName}`}</h5>
                   </div>
@@ -439,7 +482,7 @@ class Links extends Component {
             toggle={() => this._toggleModal(1)}
             className='modal-dialog-centered'>
             <ModalHeader toggle={() => this._toggleModal(1)}>
-              Add New Link
+              {addLinkFlag ? "Add New Link" : "Edit Link"}
             </ModalHeader>
             <ModalBody className='modalContent'>
               <FormGroup>
@@ -519,7 +562,7 @@ class Links extends Component {
                 className='modalBtnSave'
                 toggle={() => this._toggleModal(2)}
                 //onclick
-              >
+                onClick={() => deleteModal()}>
                 Delete
               </Button>
             </ModalFooter>
@@ -539,10 +582,11 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addContent: (content) => dispatch(addContent(content)),
-    removeContent: (_id) => dispatch(removeContent(_id)),
-    editContent: (content) => dispatch(editContent(content)),
+    addContent: (pageContents) => dispatch(addContent(pageContents)),
+    // removeContent: (_id) => dispatch(removeContent(_id)),
+    // editContent: (content) => dispatch(editContent(content)),
     addId: (_id) => dispatch(addId(_id)),
+    // userContents: (pageContents)=> dispatch(userContents(pageContents)),
   };
 };
 

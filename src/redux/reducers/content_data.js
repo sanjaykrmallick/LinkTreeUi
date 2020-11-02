@@ -1,4 +1,4 @@
-import { ADD_CONTENT_DATA, EDIT_CONTENT_DATA, REMOVE_CONTENT_DATA,ADD_ID } from '../actions';
+import { ADD_CONTENT, EDIT_CONTENT_DATA, REMOVE_CONTENT_DATA,ADD_ID  } from '../actions';
 
 const contentData = {
     contents: []
@@ -14,9 +14,9 @@ export const contentDataReducer = (
             newState.id = action.payload._id
             break;
         }
-        case ADD_CONTENT_DATA: {
+        case ADD_CONTENT: {
             console.log("ADD_CONTENT_DATA: ",action.payload)
-            newState.contents = [...newState.contents, action.payload.content]
+            newState.contents = action.payload
             break;
         }
         case EDIT_CONTENT_DATA: {
@@ -25,9 +25,9 @@ export const contentDataReducer = (
         }
         case REMOVE_CONTENT_DATA: {
             console.log("Remove_CONTENT_DATA: ",action.payload)
+            newState.contents = []
             break;
         }
-        
         default: {
         }
     }

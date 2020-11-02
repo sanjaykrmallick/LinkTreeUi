@@ -245,7 +245,7 @@ class Login extends Component {
               />
 
               <div className='w-100 justify-content-center d-flex flex-column align-items-center'>
-                <Form className='loginFormWrapper'>
+                <Form className='loginFormWrapper' onSubmit={this.users} >
                   <h4>Login to your account</h4>
                   <FormGroup>
                     <Label>Username</Label>
@@ -291,7 +291,8 @@ class Login extends Component {
 
                   <Button
                     className='recruitechThemeBtn loginBtn'
-                    onClick={this.users}>
+                    onClick={this.users}
+                    >
                     Login
                   </Button>
                 </Form>

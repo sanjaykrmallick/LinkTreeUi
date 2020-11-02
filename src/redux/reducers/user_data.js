@@ -1,9 +1,10 @@
-import { ADD_USERDATA, REMOVE_USERDATA } from '../actions';
+import { ADD_USERDATA, REMOVE_USERDATA,ADD_USER_AVATAR } from '../actions';
 
 const userData = {
     userName: '',
     token: '',
-    isActive: false
+    isActive: false,
+    avatarLink: '',
 }
 
 export const userDataReducer = (
@@ -16,7 +17,8 @@ export const userDataReducer = (
             newState = {
                 userName: action.payload.userLoginData.userName,
                 token: action.payload.userLoginData.token,
-                isActive: true
+                isActive: true,
+                avatarLink: '',
             }
             break;
         }
@@ -24,8 +26,15 @@ export const userDataReducer = (
             newState = {
                 userName: '',
                 token: '',
-                isActive: false
+                isActive: false,
+                _id: '',
+                avatarLink: '',
             }
+            break;
+        }
+        case ADD_USER_AVATAR: {
+            console.log(action.payload);
+            newState.avatarLink = action.payload.avatarLink;
             break;
         }
         default: {

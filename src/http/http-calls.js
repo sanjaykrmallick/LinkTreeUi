@@ -138,3 +138,17 @@ export const updateUserData = (userData) => {
       });
   });
 };
+
+export const getUserData = () => {
+  return new Promise((resolve, reject) => {
+    makeGetRequest(BASE_URL + "/user", true,)
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((e) => {
+        console.log("Cloudinary update API call error: ", e);
+        reject(e);
+      });
+  });
+};
+

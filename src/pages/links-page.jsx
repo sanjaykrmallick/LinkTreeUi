@@ -17,7 +17,7 @@ import {
   Label,
   Input,
 } from "reactstrap";
-import { findPage, createPage, createContent } from "../http/http-calls";
+import { findPage, createPage, createContent, getUserData } from "../http/http-calls";
 import {
   addContent,
   editContent,
@@ -69,6 +69,10 @@ class Links extends Component {
     console.log(pageContents)
     
     // localStorage.setItem("pageContents",[pageContents]) //
+    // getUserData().then((res)=>{
+    //   console.log(res)
+    //   this.props.userData(res.user.avatarLink)
+    // })
   }
 
   _toggleModal = (index) => {

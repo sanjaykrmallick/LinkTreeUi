@@ -78,7 +78,7 @@ class DefaultLayout extends Component {
                 component={Appearance}
                 redirectRoute={"/login"}
               />
-              <Route path="/" render={() => <Redirect to="/index" />} />
+              <Route path="/" render={() => <Redirect to="/login" />} />
             </Switch>
           </main>
         </div>

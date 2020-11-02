@@ -47,7 +47,7 @@ function App() {
               />
               <ProtectedRoute
                 exact
-                path='/index'
+                path='/login'
                 render={() => <Redirect to='/login' />}
               />
 

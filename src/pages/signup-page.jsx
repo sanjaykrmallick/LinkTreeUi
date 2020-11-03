@@ -231,6 +231,7 @@ class RequestDemo extends Component {
       if (!errors) {
         const { userData } = this.state;
         console.log("Final API call: ", userData);
+        this._signUp();
       }
     });
   };
@@ -443,7 +444,7 @@ class RequestDemo extends Component {
                   <Button
                     className='recruitechThemeBtn loginBtn'
                     style={{ marginTop: 30 }}
-                    onClick={this._signUp}>
+                    onClick={this._handleOnSubmit}>
                     Get Started
                   </Button>
                 </Form>

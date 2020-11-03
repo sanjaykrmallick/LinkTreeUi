@@ -10,14 +10,14 @@ import {
   Label,
 } from "reactstrap";
 import { uploadCloudinary, updateUserData } from "../http/http-calls";
-import { addUserAvatar } from '../redux/actions/user_data';
+import { addUserAvatar } from "../redux/actions/user_data";
 import { connect } from "react-redux";
 
 class Appearance extends Component {
   state = {
     modals: [false, false],
-    defaultTheme:"Light",
-    selectedTheme:"",
+    defaultTheme: "Light",
+    selectedTheme: "",
   };
 
   _uploadImage = (e) => {
@@ -26,14 +26,14 @@ class Appearance extends Component {
     fd.append("file", file);
     uploadCloudinary(fd)
       .then((res) => {
-        console.log("cloudinary res",res)
+        console.log("cloudinary res", res);
         if (!res.error) {
           const obj = {
             avatarLink: res.url,
           };
           updateUserData(obj)
             .then((res) => {
-              console.log("cloudinary res upload",res)
+              console.log("cloudinary res upload", res);
               if (!res.error) {
                 this.props.addUserAvatar(res.user.avatarLink);
               }
@@ -51,25 +51,31 @@ class Appearance extends Component {
       modals,
     });
   };
-  
-  
+
   render() {
-    const {selectedTheme,defaultTheme}=this.state
+    const { selectedTheme } = this.state;
     const showButton = () => {
-      if (this.props.contentData.contents === undefined || this.props.contentData.contents === null) {
+      if (
+        this.props.contentData.contents === undefined ||
+        this.props.contentData.contents === null
+      ) {
         console.log("page is empty while displaying");
       } else {
         // this.props.userContents(pageContents)
-        return this.props.contentData.contents.map((data) => (
-          <Fragment>
-            <Button
-              key={data.content._id}
-              className={selectedTheme==="Moon"?"btnOrange btn btnMoon":(selectedTheme==="Dark"||selectedTheme==="Scooter"?"btnOrange btn btnLight":(selectedTheme==="Leaf"?"btnOrange btn btnLeaf":"btnOrange"))}
-              onClick={() => window.open(`${data.content.url}`, "_blank")}>
-              {data.content.title}
-            </Button>
-          </Fragment>
-        ));
+        return this.props.contentData.contents.map((data) => {
+          if (data.status) {
+            return (
+              <Fragment>
+                <Button
+                  key={data.content._id}
+                  className='btnOrange'
+                  onClick={() => window.open(`${data.content.url}`, "_blank")}>
+                  {data.content.title}
+                </Button>
+              </Fragment>
+            );
+          }
+        });
       }
     };
     // 'btnOrange btn btnLeaf'
@@ -90,15 +96,19 @@ class Appearance extends Component {
                     </h4>
                     <div className='text-center'>
                       <Label className='btn uploadBtnProfile'>
-                        <input type='file' style={{ display: "none" }} onChange={(e) => this._uploadImage(e)}/>
+                        <input
+                          type='file'
+                          style={{ display: "none" }}
+                          onChange={(e) => this._uploadImage(e)}
+                        />
                         {/* <img
                           alt=''
                           className=''
                           src={"assets/img/user-img-default.png"}
                         /> */}
-                        {this.props.userData.avatarLink ? (
+                        {this.props.contentData.avatarLink ? (
                           <img
-                            src={this.props.userData.avatarLink}
+                            src={this.props.contentData.avatarLink}
                             alt='chosen'
                             style={{ height: "100px", width: "100px" }}
                           />
@@ -120,7 +130,11 @@ class Appearance extends Component {
                     <h4 style={{ fontWeight: 600, marginBottom: 0 }}>Themes</h4>
                     <Row>
                       <Col md={6} lg={4}>
-                        <Button className='selectTheme themeSeleted' onClick={()=>this.setState({selectedTheme:"Light"})}>
+                        <Button
+                          className='selectTheme themeSeleted'
+                          onClick={() =>
+                            this.setState({ selectedTheme: "Light" })
+                          }>
                           <div className='themeLight'>
                             <div className='themeLightBtn'></div>
                             <div className='themeLightBtn'></div>
@@ -130,7 +144,11 @@ class Appearance extends Component {
                         <p className='themeName'>Light</p>
                       </Col>
                       <Col md={6} lg={4}>
-                        <Button className='selectTheme' onClick={()=>this.setState({selectedTheme:"Dark"})}>
+                        <Button
+                          className='selectTheme'
+                          onClick={() =>
+                            this.setState({ selectedTheme: "Dark" })
+                          }>
                           <div className='themeDark'>
                             <div className='themeDarkBtn'></div>
                             <div className='themeDarkBtn'></div>
@@ -140,7 +158,11 @@ class Appearance extends Component {
                         <p className='themeName'>Dark</p>
                       </Col>
                       <Col md={6} lg={4}>
-                        <Button className='selectTheme' onClick={()=>this.setState({selectedTheme:"Scooter"})}>
+                        <Button
+                          className='selectTheme'
+                          onClick={() =>
+                            this.setState({ selectedTheme: "Scooter" })
+                          }>
                           <div className='themeScooter'>
                             <div className='themeScooterBtn'></div>
                             <div className='themeScooterBtn'></div>
@@ -150,7 +172,11 @@ class Appearance extends Component {
                         <p className='themeName'>Scooter</p>
                       </Col>
                       <Col md={6} lg={4}>
-                        <Button className='selectTheme' onClick={()=>this.setState({selectedTheme:"Leaf"})}>
+                        <Button
+                          className='selectTheme'
+                          onClick={() =>
+                            this.setState({ selectedTheme: "Leaf" })
+                          }>
                           <div className='themeLeaf'>
                             <div className='themeLeafBtn'></div>
                             <div className='themeLeafBtn'></div>
@@ -160,7 +186,11 @@ class Appearance extends Component {
                         <p className='themeName'>Leaf</p>
                       </Col>
                       <Col md={6} lg={4}>
-                        <Button className='selectTheme' onClick={()=>this.setState({selectedTheme:"Moon"})}>
+                        <Button
+                          className='selectTheme'
+                          onClick={() =>
+                            this.setState({ selectedTheme: "Moon" })
+                          }>
                           <div className='themeMoon'>
                             <div className='themeMoonBtn'></div>
                             <div className='themeMoonBtn'></div>
@@ -177,7 +207,10 @@ class Appearance extends Component {
               <div className='profilePreviewWrap'>
                 <Button className='shareProfileBtn'>Share</Button>
                 {/* change the theme class name accordingly, default is previewLight */}
-                <div className={`profilePreview`+` `+`preview${selectedTheme}`}>
+                <div
+                  className={
+                    `profilePreview` + ` ` + `preview${selectedTheme}`
+                  }>
                   <div className='text-center'>
                     <Label className='btn uploadBtnProfile'>
                       <input type='file' style={{ display: "none" }} />
@@ -186,9 +219,9 @@ class Appearance extends Component {
                         className=''
                         src={"assets/img/user-img-default.png"}
                       /> */}
-                      {this.props.userData.avatarLink ? (
+                      {this.props.contentData.avatarLink ? (
                         <img
-                          src={this.props.userData.avatarLink}
+                          src={this.props.contentData.avatarLink}
                           alt='chosen'
                           style={{ height: "100px", width: "100px" }}
                         />
@@ -201,13 +234,16 @@ class Appearance extends Component {
                       )}
                     </Label>
                     {/* use class text-white in Dark and Scooter theme*/}
-                      {/* <h5 className='text-black'>{`@${this.props.userData.userName}`}</h5> */}
-                      <h5 className={selectedTheme==="Dark"|| selectedTheme==="Scooter"?"text-white":"text-black"}>{`@${this.props.userData.userName}`}</h5>
+                    {/* <h5 className='text-black'>{`@${this.props.userData.userName}`}</h5> */}
+                    <h5
+                      className={
+                        selectedTheme === "Dark" || selectedTheme === "Scooter"
+                          ? "text-white"
+                          : "text-black"
+                      }>{`@${this.props.userData.userName}`}</h5>
                   </div>
 
-                  <div className='mt-4'>
-                    {showButton()}
-                  </div>
+                  <div className='mt-4'>{showButton()}</div>
                 </div>{" "}
                 {/* profilePreview */}
               </div>
@@ -220,15 +256,15 @@ class Appearance extends Component {
 }
 
 const mapStateToProps = (state) => {
-	return {
-		contentData: state.contentData,
-    userData: state.userData
-	};
+  return {
+    contentData: state.contentData,
+    userData: state.userData,
+  };
 };
 const mapDispatchToProps = (dispatch) => {
-	return {
-		addUserAvatar: (avatarLink) => dispatch(addUserAvatar(avatarLink))
-	};
+  return {
+    addUserAvatar: (avatarLink) => dispatch(addUserAvatar(avatarLink)),
+  };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Appearance);
 // export default Appearance;

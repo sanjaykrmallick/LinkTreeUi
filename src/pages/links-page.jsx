@@ -17,14 +17,20 @@ import {
   Label,
   Input,
 } from "reactstrap";
-import { findPage, createPage, createContent, getUserData } from "../http/http-calls";
+import {
+  findPage,
+  createPage,
+  createContent,
+  getUserData,
+} from "../http/http-calls";
 import {
   addContent,
   editContent,
   removeContent,
-  addId,
+  addId, addUserAvatar,
   // userContents
 } from "../redux/actions/content_data";
+// import{addUser} from "../redux/actions/user_data"
 import { connect } from "react-redux";
 import { ToastsStore } from "react-toasts";
 
@@ -36,6 +42,10 @@ class Links extends Component {
       url: "",
     },
     isDirty: {
+      title: "",
+      url: "",
+    },
+    editContentData: {
       title: "",
       url: "",
     },
@@ -62,17 +72,15 @@ class Links extends Component {
         });
         console.log("some contents are there :", res);
         this.props.addContent(res.page.contents);
-        console.log("this.props", this.props) 
-      }   
+        console.log("this.props", this.props);
+      }
     });
-    // localStorage.setItem("pageContents",JSON.stringify(...pageContents))
-    console.log(pageContents)
-    
-    // localStorage.setItem("pageContents",[pageContents]) //
-    // getUserData().then((res)=>{
-    //   console.log(res)
-    //   this.props.userData(res.user.avatarLink)
-    // })
+    console.log(pageContents);
+
+    getUserData().then((res)=>{
+      console.log(res)
+      this.props.addUserAvatar(res.user.avatarLink)
+    })
   }
 
   _toggleModal = (index) => {
@@ -147,6 +155,37 @@ class Links extends Component {
     return Object.keys(errors).length ? errors : null;
   }
 
+  _handleOnSubmitAddContent = () => {
+    let isDirty = {
+      url: true,
+      title: true,
+    };
+    this.setState({ isDirty }, () => {
+      let errors = this._validateForm();
+      console.log(errors);
+      if (!errors) {
+        const { contentData } = this.state;
+        console.log("Final API call: ", contentData);
+        this._addContentData();
+      }
+    });
+  };
+  _handleOnSubmitEditModal = (e) => {
+    let isDirty = {
+      url: true,
+      title: true,
+    };
+    this.setState({ isDirty }, () => {
+      let errors = this._validateForm();
+      console.log(errors);
+      if (!errors) {
+        const { contentData } = this.state;
+        console.log("Final API call: ", contentData);
+        this._editModal();
+      }
+    });
+  };
+
   _addContentData = () => {
     const { contentData, pageContents, pageId } = this.state;
     if (
@@ -175,8 +214,6 @@ class Links extends Component {
         console.log("createPage :", res);
         if (!res.error) {
           this.setState({ pageContents: res.page.contents });
-          // this.props.addContent();
-          // this.props.addId(res.page.id);
           this.setState({
             contentData: {
               title: "",
@@ -218,12 +255,13 @@ class Links extends Component {
     }
     // this.props.addContent(pageContents); //
     this.props.addContent(pageContents);
+    this.setState({ modals: [false, false] });
   };
 
   _handleToggle = (flag, _id) => {
     const { pageContents, pageId } = this.state;
     if (flag) {
-      pageContents.map((e) => {
+      return pageContents.map((e) => {
         if (_id === e._id) {
           e.status = true;
         }
@@ -240,9 +278,10 @@ class Links extends Component {
           this.setState({ pageContents: res.page.contents });
           console.log("added data list: ", pageContents);
         });
+        window.location.reload(); //window
       });
     } else {
-      pageContents.map((e) => {
+       pageContents.map((e) => {
         if (_id === e._id) {
           e.status = false;
         }
@@ -255,7 +294,6 @@ class Links extends Component {
           console.log("createContentLst: ", res);
           const lastContent = res.page.contents[res.page.contents.length - 1];
           console.log("newAddedContent:", lastContent);
-          this.props.addContent();
           this.setState({ pageContents: res.page.contents });
           console.log("added data list: ", pageContents);
         });
@@ -265,6 +303,54 @@ class Links extends Component {
     // this.props.addContent(pageContents); //
   };
 
+  _editModal = () => {
+    const {
+      pageContents,
+      pageId,
+      edtModalId,
+      contentData,
+    } = this.state;
+    if (pageContents === null || pageContents === undefined) {
+      return console.log("No Link item present");
+    } else {
+      var index = pageContents.findIndex((item) => item._id === edtModalId);
+      console.log(index);
+      const editedContent = {
+        content: {
+          title: contentData.title,
+          url: contentData.url,
+        },
+        _id: edtModalId,
+        status: true,
+        contentType: "socialLink",
+        subContentType: "facebook",
+      };
+      pageContents.splice(index, 1, editedContent);
+      console.log(pageContents);
+      const obj = {
+        contents: pageContents,
+      };
+      createContent(obj, pageId).then((res) => {
+        console.log("createContentLst: ", res);
+        const lastContent = res.page.contents[res.page.contents.length - 1];
+        console.log("newAddedContent:", lastContent);
+        this.setState({ pageContents: res.page.contents });
+        console.log("added data list: ", pageContents);
+      });
+      this.setState({
+        contentData: {
+          title: "",
+          url: "",
+        },
+        editLinkFlag: false,
+      });
+    }
+    this.setState({
+      modals: [false, false],
+      editContentData: { title: "", url: "" },
+    });
+  };
+
   render() {
     const {
       pageContents,
@@ -272,12 +358,10 @@ class Links extends Component {
       dltModalId,
       pageId,
       addLinkFlag,
-      edtModalId,
-      contentData,
+      editContentData,
     } = this.state;
     const cardBodyData = () => {
       if (pageContents === undefined || pageContents === null) {
-        //|| pageContents[0].content.title===null || pageContents[0].content.url===null || pageContents[0].content.title===undefined || pageContents[0].content.url===undefined
         console.log("page is empty while displaying");
       } else {
         return pageContents.map((data) => {
@@ -312,6 +396,10 @@ class Links extends Component {
                         onClick={() => {
                           this.setState({
                             edtModalId: data._id,
+                            editContentData: {
+                              title: data.content.title,
+                              url: data.content.url,
+                            },
                             editLinkFlag: true,
                           });
                           this._toggleModal(1);
@@ -323,9 +411,7 @@ class Links extends Component {
                         onClick={() => {
                           this.setState({ dltModalId: data._id });
                           this._toggleModal(2);
-                          // deleteModal();
                         }}
-                        // onClick={deleteModal()}
                       >
                         <i className='fa fa-trash-o text-danger'></i>
                       </Button>
@@ -343,16 +429,20 @@ class Links extends Component {
         console.log("page is empty while displaying");
       } else {
         // this.props.userContents(pageContents)
-        return pageContents.map((data) => (
-          <Fragment>
-            <Button
-              key={data.content._id}
-              className='btnOrange'
-              onClick={() => window.open(`${data.content.url}`, "_blank")}>
-              {data.content.title}
-            </Button>
-          </Fragment>
-        ));
+        return pageContents.map((data) => {
+          if (data.status) {
+            return (
+              <Fragment>
+                <Button
+                  key={data.content._id}
+                  className='btnOrange'
+                  onClick={() => window.open(`${data.content.url}`, "_blank")}>
+                  {data.content.title}
+                </Button>
+              </Fragment>
+            );
+          }
+        });
       }
     };
     const deleteModal = () => {
@@ -366,7 +456,7 @@ class Links extends Component {
           contents: pageContents,
         };
         createContent(obj, pageId).then((res) => {
-          debugger;
+          // debugger;
           console.log("deletedContent: ", res);
           const lastContent = res.page.contents[res.page.contents.length - 1];
           console.log("LastContent:", lastContent);
@@ -374,42 +464,7 @@ class Links extends Component {
           console.log("New data list: ", pageContents);
         });
       }
-      // this.props.addContent(pageContents); //
-    };
-    const editModal = () => {
-      if (pageContents === null || pageContents === undefined) {
-        return console.log("No Link item present");
-      } else {
-        var index = pageContents.findIndex((item) => item._id === edtModalId);
-        console.log(index);
-        const editedContent = {
-          content: {
-            title: contentData.title,
-            url: contentData.url,
-          },
-        };
-        pageContents.splice(index, 1, editedContent);
-        console.log(pageContents);
-        const obj = {
-          contents: pageContents,
-        };
-        createContent(obj, pageId).then((res) => {
-          console.log("createContentLst: ", res);
-          const lastContent = res.page.contents[res.page.contents.length - 1];
-          console.log("newAddedContent:", lastContent);
-          // this.props.addContent(content);
-          this.setState({ pageContents: res.page.contents });
-          console.log("added data list: ", pageContents);
-        });
-        this.setState({
-          contentData: {
-            title: "",
-            url: "",
-          },
-          editLinkFlag: false,
-        });
-      }
-      // this.props.addContent(pageContents); //
+      this.setState({ modals: [false, false] });
     };
 
     return (
@@ -456,9 +511,9 @@ class Links extends Component {
                         className=''
                         src={"assets/img/user-img-default.png"}
                       /> */}
-                      {this.props.userData.avatarLink ? (
+                      {this.props.contentData.avatarLink ? (
                         <img
-                          src={this.props.userData.avatarLink}
+                          src={this.props.contentData.avatarLink}
                           alt='chosen'
                           style={{ height: "100px", width: "100px" }}
                         />
@@ -480,7 +535,7 @@ class Links extends Component {
             </Col>
           </Row>
 
-          {/* Modal for showing "Create New Link" */}
+          {/* Modal for showing "Create New Link" && "EDIT LINK"*/}
           <Modal
             isOpen={this.state.modals[1]}
             toggle={() => this._toggleModal(1)}
@@ -494,7 +549,11 @@ class Links extends Component {
                 <Input
                   type='text'
                   placeholder='Enter Title'
-                  value={this.state.contentData.title}
+                  value={
+                    addLinkFlag
+                      ? this.state.contentData.title
+                      : editContentData.title
+                  }
                   onChange={(e) =>
                     this._handleOnChange("title", e.target.value)
                   }
@@ -512,7 +571,11 @@ class Links extends Component {
                 <Input
                   type='text'
                   placeholder='Enter URL'
-                  value={this.state.contentData.url}
+                  value={
+                    addLinkFlag
+                      ? this.state.contentData.url
+                      : editContentData.url
+                  }
                   onChange={(e) => this._handleOnChange("url", e.target.value)}
                 />
                 {errors && (
@@ -535,7 +598,9 @@ class Links extends Component {
                 className='modalBtnSave'
                 toggle={() => this._toggleModal(1)}
                 onClick={() => {
-                  addLinkFlag ? this._addContentData() : editModal();
+                  addLinkFlag
+                    ? this._handleOnSubmitAddContent()
+                    : this._handleOnSubmitEditModal();
                 }}>
                 Create
               </Button>
@@ -590,7 +655,8 @@ const mapDispatchToProps = (dispatch) => {
     // removeContent: (_id) => dispatch(removeContent(_id)),
     // editContent: (content) => dispatch(editContent(content)),
     addId: (_id) => dispatch(addId(_id)),
-    // userContents: (pageContents)=> dispatch(userContents(pageContents)),
+   // addUser: (avatarLink) => dispatch(addUser(avatarLink))
+   addUserAvatar:(avatarLink) =>dispatch(addUserAvatar(avatarLink))
   };
 };
 

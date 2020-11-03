@@ -45,7 +45,7 @@ class DefaultHeader extends Component {
         <Nav className="ml-auto pt-1" navbar>
           <UncontrolledDropdown nav direction="down" className="mr-3 ml-1">
             <DropdownToggle nav>
-              <img src={this.props.userData.avatarLink?this.props.userData.avatarLink:`../../assets/img/user-img-default.png`} className="img-avatar mr-1" alt="User Img" />
+              <img src={this.props.contentData.avatarLink?this.props.contentData.avatarLink:`../../assets/img/user-img-default.png`} className="img-avatar mr-1" alt="User Img" />
               <i className="fa fa-caret-down"></i>
             </DropdownToggle>
             <DropdownMenu right className="mt-2">
@@ -69,6 +69,7 @@ DefaultHeader.defaultProps = defaultProps;
 const mapStateToProps = (state) => {
   return {
     userData: state.userData,
+    contentData:state.contentData
   };
 };
 export default connect(mapStateToProps)(DefaultHeader);

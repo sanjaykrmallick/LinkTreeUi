@@ -33,26 +33,27 @@ function App() {
               position={ToastsContainerPosition.BOTTOM_RIGHT}
             />
             <Switch>
-              <Route
+              <PublicRoute
                 exact
                 path='/signup'
                 component={SignUp}
-                redirectUrl='/links'
+                redirectRoute={'/links'}
               />
-              <Route exact path='/login' component={LoginPage} />
-              <Route
+              <PublicRoute exact path='/login' component={LoginPage} redirectRoute={'/links'}/>
+              <PublicRoute
                 exact
                 path='/forgot-password'
                 component={ForgotPasswordPage}
+                redirectRoute={'/links'}
               />
-              <ProtectedRoute
+              <Route
                 exact
-                path='/login'
+                path='/index'
                 render={() => <Redirect to='/login' />}
               />
 
               <Route path='/' component={DefaultLayout} />
-              <PublicRoute path='*' render={() => <Redirect to='/' />} />
+              <Route path='*' render={() => <Redirect to='/' />} />
             </Switch>
           </div>
         </Router>

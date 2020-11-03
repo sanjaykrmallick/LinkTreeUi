@@ -1,7 +1,8 @@
-import { ADD_CONTENT, EDIT_CONTENT_DATA, REMOVE_CONTENT_DATA,ADD_ID  } from '../actions';
+import { ADD_CONTENT, EDIT_CONTENT_DATA, REMOVE_CONTENT_DATA,ADD_ID , ADD_AVATAR} from '../actions';
 
 const contentData = {
-    contents: []
+    contents: [],
+    avatarLink:""
 }
 
 export const contentDataReducer = (
@@ -26,6 +27,11 @@ export const contentDataReducer = (
         case REMOVE_CONTENT_DATA: {
             console.log("Remove_CONTENT_DATA: ",action.payload)
             newState.contents = []
+            break;
+        }
+        case ADD_AVATAR: {
+            console.log(action.payload);
+            newState.avatarLink = action.payload.avatarLink;
             break;
         }
         default: {

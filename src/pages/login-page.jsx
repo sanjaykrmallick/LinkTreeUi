@@ -112,6 +112,7 @@ class Login extends Component {
         this.props.history.push("/login")
         ToastsStore.error("Please check Username & Password");
       });
+      
   };
 
   _handleOnChange = (field, value) => {
@@ -155,13 +156,6 @@ class Login extends Component {
           if (isDirty.password) {
             if (!userData.password.trim().length) {
               errors.password = "*Required";
-            } else if (
-              userData.password.trim().length &&
-              !new RegExp(
-                `^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$`
-              ).test(userData.password)
-            ) {
-              errors.password = "*Invalid Password";
             } else {
               delete errors[each];
               isDirty.password = false;
@@ -190,6 +184,7 @@ class Login extends Component {
       if (!errors) {
         const { userData } = this.state;
         console.log("Final API call: ", userData);
+        this.users();
       }
     });
   };
@@ -245,7 +240,7 @@ class Login extends Component {
               />
 
               <div className='w-100 justify-content-center d-flex flex-column align-items-center'>
-                <Form className='loginFormWrapper' onSubmit={this.users} >
+                <Form className='loginFormWrapper' onSubmit={this._handleOnSubmit} >
                   <h4>Login to your account</h4>
                   <FormGroup>
                     <Label>Username</Label>
@@ -272,7 +267,6 @@ class Login extends Component {
                     <Input
                       type='password'
                       placeholder='Your Password'
-                      title='Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.'
                       value={userData.email}
                       onChange={(e) =>
                         this._handleOnChange("password", e.target.value.trim())
@@ -291,7 +285,7 @@ class Login extends Component {
 
                   <Button
                     className='recruitechThemeBtn loginBtn'
-                    onClick={this.users}
+                    onClick={this._handleOnSubmit}
                     >
                     Login
                   </Button>

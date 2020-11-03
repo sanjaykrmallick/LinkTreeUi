@@ -3,6 +3,7 @@ import {
   EDIT_CONTENT_DATA,
   REMOVE_CONTENT_DATA,
   ADD_ID,
+  ADD_AVATAR,
   
 } from "./action-types";
 
@@ -35,6 +36,14 @@ export const addId = (_id) => {
     },
   };
 };
+export const addUserAvatar = (avatarLink) => {
+  return {
+      type: ADD_AVATAR,
+      payload: {
+          avatarLink
+      }
+  }
+}
 
 // export const userContents = (pageContents) => {
 //   return {

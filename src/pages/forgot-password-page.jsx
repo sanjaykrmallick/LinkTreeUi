@@ -1,4 +1,4 @@
-import React, { Component,Fragment } from "react";
+import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
 import { ToastsContainer, ToastsStore } from "react-toasts";
 import {
@@ -76,27 +76,31 @@ class ForgotPassword extends Component {
     if (this.animating) return;
     this.setState({ activeIndex: newIndex });
   }
+  _goLogin = () => {
+    this.props.history.push("/login");
+  };
 
   login = (e) => {
-    const {userData}= this.state
+    const { userData } = this.state;
     e.preventDefault();
-    let isDirty ={
-      email:true,
+    let isDirty = {
+      email: true,
       password: true,
     };
-    this.setState({isDirty},()=>{
-      
-      let errors =this._validateForm();
+    this.setState({ isDirty }, () => {
+      let errors = this._validateForm();
       console.log(errors);
-      if(!errors){
-        const forgot_passData={
+      if (!errors) {
+        const forgot_passData = {
           handle: userData.email,
-        }
-        forgot_pass(forgot_passData).then(res=>console.log(res));
-        ToastsStore.success(`Please Check Your Email: ${userData.email} for changing Password`);
-        this.props.history.push('/login')
-      }else{
-        ToastsStore.error("Error in changing Password")
+        };
+        forgot_pass(forgot_passData).then((res) => console.log(res));
+        ToastsStore.success(
+          `Please Check Your Email: ${userData.email} for changing Password`
+        );
+        this.props.history.push("/login");
+      } else {
+        ToastsStore.error("Error in changing Password");
         this.props.history.push("/login");
       }
     });
@@ -166,6 +170,7 @@ class ForgotPassword extends Component {
       console.log(errors);
       if (!errors) {
         const { userData } = this.state;
+        this.login();
         console.log("Final API call: ", userData);
       }
     });
@@ -174,7 +179,7 @@ class ForgotPassword extends Component {
   render() {
     const { activeIndex, userData, errors } = this.state;
 
-    const slides2 = items.map((item,i) => {
+    const slides2 = items.map((item, i) => {
       return (
         <CarouselItem
           onExiting={this.onExiting}
@@ -225,7 +230,7 @@ class ForgotPassword extends Component {
                 <a
                   href='javascript:void(0)'
                   className='backToLogin'
-                  onClick={this.login}>
+                  onClick={this._goLogin}>
                   Back to Login
                 </a>
               </div>
@@ -257,7 +262,7 @@ class ForgotPassword extends Component {
 
                   <Button
                     className='recruitechThemeBtn loginBtn'
-                    onClick={this.login}>
+                    onClick={this._handleOnSubmit}>
                     Reset Password
                   </Button>
                 </Form>

@@ -128,7 +128,7 @@ export const uploadCloudinary = (cloudData) => {
 
 export const updateUserData = (userData) => {
   return new Promise((resolve, reject) => {
-    makePutRequest(BASE_URL + "/user", true, userData)
+    makePutRequest(BASE_URL+"/user", true, userData)
       .then((res) => {
         resolve(res);
       })

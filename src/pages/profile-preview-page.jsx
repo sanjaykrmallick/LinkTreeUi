@@ -1,25 +1,31 @@
-import React, { Component,Fragment } from "react";
+import React, { Component, Fragment } from "react";
 import { Col, Container, Row, Button, Label, Card, CardBody } from "reactstrap";
 import { connect } from "react-redux";
 
 class ProfilePreview extends Component {
   render() {
-
     const showButton = () => {
-      if (this.props.contentData.contents === undefined || this.props.contentData.contents === null) {
+      if (
+        this.props.contentData.contents === undefined ||
+        this.props.contentData.contents === null
+      ) {
         console.log("page is empty while displaying");
       } else {
         // this.props.userContents(pageContents)
-        return this.props.contentData.contents.map((data) => (
-          <Fragment>
-            <Button
-              key={data.content._id}
-              className='btnOrange'
-              onClick={() => window.open(`${data.content.url}`, "_blank")}>
-              {data.content.title}
-            </Button>
-          </Fragment>
-        ));
+        return this.props.contentData.contents.map((data) => {
+          if (data.status) {
+            return (
+              <Fragment>
+                <Button
+                  key={data.content._id}
+                  className='btnOrange'
+                  onClick={() => window.open(`${data.content.url}`, "_blank")}>
+                  {data.content.title}
+                </Button>
+              </Fragment>
+            );
+          }
+        });
       }
     };
 
@@ -59,9 +65,7 @@ class ProfilePreview extends Component {
                     <h5>{`@${this.props.userData.userName}`}</h5>
                   </div>
 
-                  <div className='mt-4'>
-                  {showButton()}
-                  </div>
+                  <div className='mt-4'>{showButton()}</div>
                 </CardBody>
               </Card>
             </Col>

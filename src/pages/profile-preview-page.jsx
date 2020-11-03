@@ -48,9 +48,9 @@ class ProfilePreview extends Component {
                         className=''
                         src={"assets/img/user-img-default.png"}
                       /> */}
-                      {this.props.userData.avatarLink ? (
+                      {this.props.contentData.avatarLink ? (
                         <img
-                          src={this.props.userData.avatarLink}
+                          src={this.props.contentData.avatarLink}
                           alt='chosen'
                           style={{ height: "100px", width: "100px" }}
                         />

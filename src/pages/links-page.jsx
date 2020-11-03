@@ -27,7 +27,8 @@ import {
   addContent,
   editContent,
   removeContent,
-  addId, addUserAvatar,
+  addId,
+  addUserAvatar,
   // userContents
 } from "../redux/actions/content_data";
 // import{addUser} from "../redux/actions/user_data"
@@ -77,10 +78,10 @@ class Links extends Component {
     });
     console.log(pageContents);
 
-    getUserData().then((res)=>{
-      console.log(res)
-      this.props.addUserAvatar(res.user.avatarLink)
-    })
+    getUserData().then((res) => {
+      console.log(res);
+      this.props.addUserAvatar(res.user.avatarLink);
+    });
   }
 
   _toggleModal = (index) => {
@@ -281,7 +282,7 @@ class Links extends Component {
         window.location.reload(); //window
       });
     } else {
-       pageContents.map((e) => {
+      pageContents.map((e) => {
         if (_id === e._id) {
           e.status = false;
         }
@@ -304,12 +305,7 @@ class Links extends Component {
   };
 
   _editModal = () => {
-    const {
-      pageContents,
-      pageId,
-      edtModalId,
-      contentData,
-    } = this.state;
+    const { pageContents, pageId, edtModalId, contentData } = this.state;
     if (pageContents === null || pageContents === undefined) {
       return console.log("No Link item present");
     } else {
@@ -348,6 +344,7 @@ class Links extends Component {
     this.setState({
       modals: [false, false],
       editContentData: { title: "", url: "" },
+      contentData: { title: "", url: "" },
     });
   };
 
@@ -396,7 +393,7 @@ class Links extends Component {
                         onClick={() => {
                           this.setState({
                             edtModalId: data._id,
-                            editContentData: {
+                            contentData: {
                               title: data.content.title,
                               url: data.content.url,
                             },
@@ -411,8 +408,7 @@ class Links extends Component {
                         onClick={() => {
                           this.setState({ dltModalId: data._id });
                           this._toggleModal(2);
-                        }}
-                      >
+                        }}>
                         <i className='fa fa-trash-o text-danger'></i>
                       </Button>
                     </div>
@@ -549,11 +545,7 @@ class Links extends Component {
                 <Input
                   type='text'
                   placeholder='Enter Title'
-                  value={
-                    addLinkFlag
-                      ? this.state.contentData.title
-                      : editContentData.title
-                  }
+                  value={this.state.contentData.title}
                   onChange={(e) =>
                     this._handleOnChange("title", e.target.value)
                   }
@@ -571,11 +563,7 @@ class Links extends Component {
                 <Input
                   type='text'
                   placeholder='Enter URL'
-                  value={
-                    addLinkFlag
-                      ? this.state.contentData.url
-                      : editContentData.url
-                  }
+                  value={this.state.contentData.url}
                   onChange={(e) => this._handleOnChange("url", e.target.value)}
                 />
                 {errors && (
@@ -655,8 +643,8 @@ const mapDispatchToProps = (dispatch) => {
     // removeContent: (_id) => dispatch(removeContent(_id)),
     // editContent: (content) => dispatch(editContent(content)),
     addId: (_id) => dispatch(addId(_id)),
-   // addUser: (avatarLink) => dispatch(addUser(avatarLink))
-   addUserAvatar:(avatarLink) =>dispatch(addUserAvatar(avatarLink))
+    // addUser: (avatarLink) => dispatch(addUser(avatarLink))
+    addUserAvatar: (avatarLink) => dispatch(addUserAvatar(avatarLink)),
   };
 };
 

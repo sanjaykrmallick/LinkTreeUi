@@ -28,10 +28,9 @@ import {
   editContent,
   removeContent,
   addId,
-  addUserAvatar,
   // userContents
 } from "../redux/actions/content_data";
-// import{addUser} from "../redux/actions/user_data"
+import{addUserAvatar} from "../redux/actions/user_data"
 import { connect } from "react-redux";
 import { ToastsStore } from "react-toasts";
 
@@ -507,9 +506,9 @@ class Links extends Component {
                         className=''
                         src={"assets/img/user-img-default.png"}
                       /> */}
-                      {this.props.contentData.avatarLink ? (
+                      {this.props.userData.avatarLink ? (
                         <img
-                          src={this.props.contentData.avatarLink}
+                          src={this.props.userData.avatarLink}
                           alt='chosen'
                           style={{ height: "100px", width: "100px" }}
                         />

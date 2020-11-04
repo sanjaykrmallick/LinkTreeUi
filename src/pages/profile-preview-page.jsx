@@ -11,7 +11,6 @@ class ProfilePreview extends Component {
       ) {
         console.log("page is empty while displaying");
       } else {
-        // this.props.userContents(pageContents)
         return this.props.contentData.contents.map((data) => {
           if (data.status) {
             return (
@@ -43,14 +42,9 @@ class ProfilePreview extends Component {
                   <div className='text-center'>
                     <Label className='btn uploadBtnProfile'>
                       <input type='file' style={{ display: "none" }} />
-                      {/* <img
-                        alt=''
-                        className=''
-                        src={"assets/img/user-img-default.png"}
-                      /> */}
-                      {this.props.contentData.avatarLink ? (
+                      {this.props.userData.avatarLink ? (
                         <img
-                          src={this.props.contentData.avatarLink}
+                          src={this.props.userData.avatarLink}
                           alt='chosen'
                           style={{ height: "100px", width: "100px" }}
                         />

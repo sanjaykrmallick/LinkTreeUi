@@ -7,7 +7,7 @@ export const EDIT_CONTENT_DATA = 'EDIT_CONTENT';
 export const REMOVE_CONTENT_DATA = 'REMOVE_CONTENT';
 export const ADD_ID = 'ADD_ID';
 export const DELETE_ITEM = 'DELETE_ITEM';
-export const ADD_AVATAR = 'ADD_AVATAR';
+
 
 export const SHOW_LOADER = 'SHOW_LOADER';
 export const HIDE_LOADER = 'HIDE_LOADER';

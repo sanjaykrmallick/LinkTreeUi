@@ -14,11 +14,15 @@ import { addUserAvatar } from "../redux/actions/user_data";
 import { connect } from "react-redux";
 
 class Appearance extends Component {
-  state = {
-    modals: [false, false],
-    defaultTheme: "Light",
-    selectedTheme: "",
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      modals: [false, false],
+      defaultTheme: "Light",
+      selectedTheme: "",
+    };
+    this._uploadImage = this._uploadImage.bind(this._uploadImage);
+  }
 
   _uploadImage = (e) => {
     const file = e.target.files[0];
@@ -101,14 +105,9 @@ class Appearance extends Component {
                           style={{ display: "none" }}
                           onChange={(e) => this._uploadImage(e)}
                         />
-                        {/* <img
-                          alt=''
-                          className=''
-                          src={"assets/img/user-img-default.png"}
-                        /> */}
-                        {this.props.contentData.avatarLink ? (
+                        {this.props.userData.avatarLink ? (
                           <img
-                            src={this.props.contentData.avatarLink}
+                            src={this.props.userData.avatarLink}
                             alt='chosen'
                             style={{ height: "100px", width: "100px" }}
                           />
@@ -219,9 +218,9 @@ class Appearance extends Component {
                         className=''
                         src={"assets/img/user-img-default.png"}
                       /> */}
-                      {this.props.contentData.avatarLink ? (
+                      {this.props.userData.avatarLink ? (
                         <img
-                          src={this.props.contentData.avatarLink}
+                          src={this.props.userData.avatarLink}
                           alt='chosen'
                           style={{ height: "100px", width: "100px" }}
                         />

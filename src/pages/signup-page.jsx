@@ -86,7 +86,6 @@ class RequestDemo extends Component {
   }
 
   _signUp = (e) => {
-    e.preventDefault();
     let isDirty = {
       email: true,
       password: true,
@@ -101,12 +100,17 @@ class RequestDemo extends Component {
           password: this.state.userData.password,
         };
         signUp(signupData).then((res) => console.log(res));
+        this.setState({userData: {
+          email: "",
+          username: "",
+          password: "",
+          re_password: "",
+        }})
         ToastsStore.success("Successfully Signed-Up ");
       } else {
         ToastsStore.error("Problem in Sign-Up");
       }
     });
-    // this.props.history.push("/login");
   };
   login = () => {
     this.props.history.push("/login");
@@ -176,14 +180,6 @@ class RequestDemo extends Component {
           if (isDirty.password) {
             if (!userData.password.trim().length) {
               errors.password = "*Required";
-            } else if (
-              userData.password.trim().length &&
-              !new RegExp(
-                // `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$`
-                `^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$`
-              ).test(userData.password)
-            ) {
-              errors.password = "*Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.";
             } else {
               delete errors[each];
               isDirty.password = false;
@@ -380,7 +376,7 @@ class RequestDemo extends Component {
                       type={type}
                       placeholder='Enter Password'
                       style={{ paddingRight: 35 }}
-                      title='Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.'
+                      title={`For better security use:  Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special Character.`}
                       value={userData.password}
                       onChange={(e) =>
                         this._handleOnChange("password", e.target.value)
@@ -444,7 +440,7 @@ class RequestDemo extends Component {
                   <Button
                     className='recruitechThemeBtn loginBtn'
                     style={{ marginTop: 30 }}
-                    onClick={this._handleOnSubmit}>
+                    onClick={(e)=> this._handleOnSubmit(e)}>
                     Get Started
                   </Button>
                 </Form>

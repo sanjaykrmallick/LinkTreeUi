@@ -1,7 +1,7 @@
-import React, { Component, Suspense } from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
-import * as router from 'react-router-dom';
-import { Container } from 'reactstrap';
+import React, { Component, Suspense } from "react";
+import { Redirect, Route, Switch } from "react-router-dom";
+import * as router from "react-router-dom";
+import { Container } from "reactstrap";
 
 import {
   AppAside,
@@ -14,55 +14,59 @@ import {
   AppSidebarMinimizer,
   AppBreadcrumb2 as AppBreadcrumb,
   AppSidebarNav2 as AppSidebarNav,
-} from '@coreui/react';
+} from "@coreui/react";
 // sidebar nav config
-import navigation from '../../_nav';
-import ProtectedRoute from '../../components/protected-routes';
-import ProfilePreview from './../../pages/profile-preview-page';
-import Links from './../../pages/links-page';
-import Appearance from './../../pages/appearance-page';
+import navigation from "../../_nav";
+import ProtectedRoute from "../../components/protected-routes";
+import ProfilePreview from "./../../pages/profile-preview-page";
+import Links from "./../../pages/links-page";
+import Appearance from "./../../pages/appearance-page";
 
-const DefaultAside = React.lazy(() => import('./DefaultAside'));
-const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
-const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
+const DefaultAside = React.lazy(() => import("./DefaultAside"));
+const DefaultFooter = React.lazy(() => import("./DefaultFooter"));
+const DefaultHeader = React.lazy(() => import("./DefaultHeader"));
 
 class DefaultLayout extends Component {
-
-  loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
+  loading = () => (
+    <div className='animated fadeIn pt-1 text-center'>Loading...</div>
+  );
 
   signOut(e) {
-    e.preventDefault()
-    localStorage.clear(); 
-    this.props.history.push('/login')
+    e.preventDefault();
+    localStorage.clear();
+    this.props.history.push("/login");
   }
 
-  componentDidMount(){
-    console.log('in layout :>> ');
+  componentDidMount() {
+    console.log("in layout :>> ");
   }
 
   render() {
     return (
-      <div className="app">
+      <div className='app'>
         <AppHeader fixed>
-          <Suspense  fallback={this.loading()}>
-            <DefaultHeader onLogout={e=>this.signOut(e)}/>
+          <Suspense fallback={this.loading()}>
+            <DefaultHeader onLogout={(e) => this.signOut(e)} />
           </Suspense>
         </AppHeader>
-        <div className="app-body">
+        <div className='app-body'>
           <AppSidebar fixed>
             <AppSidebarHeader />
             <AppSidebarForm />
             <Suspense>
-              <AppSidebarNav navConfig={navigation} {...this.props} router={router}/>
+              <AppSidebarNav
+                navConfig={navigation}
+                {...this.props}
+                router={router}
+              />
             </Suspense>
             <AppSidebarFooter />
             <AppSidebarMinimizer />
           </AppSidebar>
-          <main className="main">
+          <main className='main'>
             {/* <Container fluid>
             </Container> */}
             <Switch>
-              
               <ProtectedRoute
                 path={`/profile-preview`}
                 component={ProfilePreview}
@@ -78,7 +82,7 @@ class DefaultLayout extends Component {
                 component={Appearance}
                 redirectRoute={"/login"}
               />
-              <Route path="/" render={() => <Redirect to="/links" />} />
+              <Route path='/' render={() => <Redirect to='/links' />} />
             </Switch>
           </main>
         </div>

@@ -152,3 +152,16 @@ export const getUserData = () => {
   });
 };
 
+
+export const getUserProfile = (userName) => {
+  return new Promise((resolve, reject) => {
+    makeGetRequest(BASE_URL + `/page-details/${userName}`,)
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((e) => {
+        console.log("Cloudinary update API call error: ", e);
+        reject(e);
+      });
+  });
+};

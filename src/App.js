@@ -19,8 +19,8 @@ import DefaultLayout from "./containers/DefaultLayout/DefaultLayout";
 import { store, persistor } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
-import ProtectedRoute from "./components/protected-routes";
 import PublicRoute from "./components/public-route";
+import UserProfilePage from "./pages/UserProfile-page";
 
 function App() {
   return (
@@ -37,14 +37,24 @@ function App() {
                 exact
                 path='/signup'
                 component={SignUp}
-                redirectRoute={'/links'}
+                redirectRoute={"/links"}
               />
-              <PublicRoute exact path='/login' component={LoginPage} redirectRoute={'/links'}/>
+              <PublicRoute
+                exact
+                path='/login'
+                component={LoginPage}
+                redirectRoute={"/links"}
+              />
               <PublicRoute
                 exact
                 path='/forgot-password'
                 component={ForgotPasswordPage}
-                redirectRoute={'/links'}
+                redirectRoute={"/links"}
+              />
+              <Route
+                exact
+                path={`/profile/:userName`}
+                component={UserProfilePage}
               />
               <Route
                 exact

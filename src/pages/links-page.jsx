@@ -29,18 +29,24 @@ import { connect } from "react-redux";
 import { ToastsStore } from "react-toasts";
 import {
   FacebookShareButton,
-  InstapaperShareButton,
+  FacebookMessengerShareButton,
   LinkedinShareButton,
   TelegramShareButton,
   TwitterShareButton,
   WhatsappShareButton,
+  FacebookIcon,
+  FacebookMessengerIcon,
+  LinkedinIcon,
+  TwitterIcon,
+  TelegramIcon,
+  WhatsappIcon,
 } from "react-share";
 
 class Links extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      modals: [false, false],
+      modals: [false, false, false],
       contentData: {
         title: "",
         url: "",
@@ -262,7 +268,6 @@ class Links extends Component {
         addLinkFlag: false,
       });
     }
-    // this.props.addContent(pageContents); //
     this.props.addContent(pageContents);
     this.setState({ modals: [false, false] });
   };
@@ -309,7 +314,6 @@ class Links extends Component {
       });
     }
     console.log(pageContents);
-    // this.props.addContent(pageContents); //
   };
 
   _editModal = () => {
@@ -364,7 +368,7 @@ class Links extends Component {
     result.splice(endIndex, 0, removed);
     console.log(result);
     const obj = {
-      contents: pageContents,
+      contents: result,
     };
     createContent(obj, pageId).then((res) => {
       console.log("createContentLst: ", res);
@@ -409,14 +413,98 @@ class Links extends Component {
   }
 
   _socialShare = () => {
+    let userUrl = window.location.href;
+    userUrl = userUrl.substring(0, userUrl.lastIndexOf("/"));
+    console.log(userUrl);
+
     return (
       <Fragment>
-        <Modal isOpen={this.state.modals[1]} className='modal-dialog-centered'>
-          <ModalHeader>Social Share</ModalHeader>
-          <ModalBody className='modalContent'>
-            <FormGroup></FormGroup>
-          </ModalBody>
-        </Modal>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div>
+            <FacebookShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Facebook : '
+              className='Demo__some-network__share-button'>
+              <FacebookIcon size={40} round />
+              <p style={{ margin: "0" }}>Facebook</p>
+            </FacebookShareButton>
+          </div>
+          <div>
+            <FacebookMessengerShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Messenger : '
+              className='Demo__some-network__share-button'>
+              <FacebookMessengerIcon size={40} round />
+              <p style={{ margin: "0" }}>Messenger</p>
+            </FacebookMessengerShareButton>
+          </div>
+          <div>
+            <LinkedinShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Linkedin : '
+              className='Demo__some-network__share-button'>
+              <LinkedinIcon size={40} round />
+              <p style={{ margin: "0" }}>Linkedin</p>
+            </LinkedinShareButton>
+          </div>
+          <div>
+            <TelegramShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Telegram : '
+              className='Demo__some-network__share-button'>
+              <TelegramIcon size={40} round />
+              <p style={{ margin: "0" }}>Telegram</p>
+            </TelegramShareButton>
+          </div>
+          <div>
+            <TwitterShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Twitter : '
+              className='Demo__some-network__share-button'>
+              <TwitterIcon size={40} round />
+              <p style={{ margin: "0" }}>Twitter</p>
+            </TwitterShareButton>
+          </div>
+          <div>
+            <WhatsappShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Whatsapp : '
+              className='Demo__some-network__share-button'>
+              <WhatsappIcon size={40} round />
+              <p style={{ margin: "0" }}>Whatsapp</p>
+            </WhatsappShareButton>
+          </div>
+        </div>
       </Fragment>
     );
   };
@@ -428,7 +516,6 @@ class Links extends Component {
       dltModalId,
       pageId,
       addLinkFlag,
-      editContentData,
       selectedTheme,
     } = this.state;
     const cardBodyData = () => {
@@ -481,7 +568,6 @@ class Links extends Component {
                                       )
                                     }
                                   />
-
                                   <Button
                                     className='delLinkBtn'
                                     onClick={() => {
@@ -525,7 +611,6 @@ class Links extends Component {
       if (pageContents === undefined || pageContents === null) {
         console.log("page is empty while displaying");
       } else {
-        // this.props.userContents(pageContents)
         return pageContents.map((data) => {
           if (data.status) {
             return (
@@ -604,8 +689,8 @@ class Links extends Component {
 
               <div className='profilePreviewWrap'>
                 <Button
-                  className='shareProfileBtn'
-                  onClick={() => this._socialShare}>
+                  className='shareProfileBtn btnMoon'
+                  onClick={() => this._toggleModal(3)}>
                   Share
                 </Button>
                 <div
@@ -724,7 +809,8 @@ class Links extends Component {
             <ModalFooter>
               <Button
                 className='modalBtnCancel'
-                toggle={() => this._toggleModal(2)}>
+                toggle={() => this._toggleModal(2)}
+                onClick={() => this._toggleModal(2)}>
                 Cancel
               </Button>
               <Button
@@ -733,6 +819,29 @@ class Links extends Component {
                 //onclick
                 onClick={() => deleteModal()}>
                 Delete
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          {/* Modal for Share Link */}
+          <Modal
+            isOpen={this.state.modals[3]}
+            toggle={() => this._toggleModal(3)}
+            className='modal-dialog-centered'>
+            <ModalHeader toggle={() => this._toggleModal(3)}>
+              Share Link
+            </ModalHeader>
+            <ModalBody className='modalContent text-center'>
+              <Card className='userDetails mb-4'>
+                <CardBody>{this._socialShare()}</CardBody>
+              </Card>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                className='modalBtnCancel'
+                toggle={() => this._toggleModal(3)}
+                onClick={() => this._toggleModal(3)}>
+                Close
               </Button>
             </ModalFooter>
           </Modal>

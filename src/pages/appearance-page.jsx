@@ -6,10 +6,31 @@ import {
   Button,
   Card,
   CardBody,
-  CustomInput,
   Label,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "reactstrap";
-import { uploadCloudinary, updateUserData,getUserData } from "../http/http-calls";
+import {
+  FacebookShareButton,
+  FacebookMessengerShareButton,
+  LinkedinShareButton,
+  TelegramShareButton,
+  TwitterShareButton,
+  WhatsappShareButton,
+  FacebookIcon,
+  FacebookMessengerIcon,
+  LinkedinIcon,
+  TwitterIcon,
+  TelegramIcon,
+  WhatsappIcon,
+} from "react-share";
+import {
+  uploadCloudinary,
+  updateUserData,
+  getUserData,
+} from "../http/http-calls";
 import { addTemplate, addUserAvatar } from "../redux/actions/user_data";
 import { connect } from "react-redux";
 
@@ -17,18 +38,26 @@ class Appearance extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      modals: [false, false],
+      modals: [false, false, false],
       selectedTheme: "",
     };
     this._uploadImage = this._uploadImage.bind(this._uploadImage);
   }
 
-  componentDidMount(){
+  componentDidMount() {
     getUserData().then((res) => {
       console.log(res);
-      this.setState({selectedTheme:res.user.template})
+      this.setState({ selectedTheme: res.user.template });
     });
   }
+
+  _toggleModal = (index) => {
+    const { modals } = this.state;
+    modals[index] = !modals[index];
+    this.setState({
+      modals,
+    });
+  };
 
   _uploadImage = (e) => {
     const file = e.target.files[0];
@@ -62,22 +91,119 @@ class Appearance extends Component {
     });
   };
 
-  _handleOnClickTheme=(theme)=>{
+  _handleOnClickTheme = (theme) => {
     const obj = {
       template: theme,
     };
-    
+
     updateUserData(obj)
-            .then((res) => {
-              console.log("cloudinary res upload", res);
-              if (!res.error) {
-               console.log(res)
-               this.props.addTemplate(res.user.template)
-                this.setState({selectedTheme:res.user.template})
+      .then((res) => {
+        console.log("cloudinary res upload", res);
+        if (!res.error) {
+          console.log(res);
+          this.props.addTemplate(res.user.template);
+          this.setState({ selectedTheme: res.user.template });
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  _socialShare = () => {
+    let userUrl = window.location.href;
+    userUrl = userUrl.substring(0, userUrl.lastIndexOf("/"));
+    console.log(userUrl);
+
+    return (
+      <Fragment>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div>
+            <FacebookShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
               }
-            })
-            .catch((err) => console.log(err));
-  }
+              title='Facebook : '
+              className='Demo__some-network__share-button'>
+              <FacebookIcon size={40} round />
+              <p style={{ margin: "0" }}>Facebook</p>
+            </FacebookShareButton>
+          </div>
+          <div>
+            <FacebookMessengerShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Messenger : '
+              className='Demo__some-network__share-button'>
+              <FacebookMessengerIcon size={40} round />
+              <p style={{ margin: "0" }}>Messenger</p>
+            </FacebookMessengerShareButton>
+          </div>
+          <div>
+            <LinkedinShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Linkedin : '
+              className='Demo__some-network__share-button'>
+              <LinkedinIcon size={40} round />
+              <p style={{ margin: "0" }}>Linkedin</p>
+            </LinkedinShareButton>
+          </div>
+          <div>
+            <TelegramShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Telegram : '
+              className='Demo__some-network__share-button'>
+              <TelegramIcon size={40} round />
+              <p style={{ margin: "0" }}>Telegram</p>
+            </TelegramShareButton>
+          </div>
+          <div>
+            <TwitterShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Twitter : '
+              className='Demo__some-network__share-button'>
+              <TwitterIcon size={40} round />
+              <p style={{ margin: "0" }}>Twitter</p>
+            </TwitterShareButton>
+          </div>
+          <div>
+            <WhatsappShareButton
+              url={
+                `${userUrl}` +
+                "/profile" +
+                "/" +
+                `${this.props.userData.userName}`
+              }
+              title='Whatsapp : '
+              className='Demo__some-network__share-button'>
+              <WhatsappIcon size={40} round />
+              <p style={{ margin: "0" }}>Whatsapp</p>
+            </WhatsappShareButton>
+          </div>
+        </div>
+      </Fragment>
+    );
+  };
 
   render() {
     const { selectedTheme } = this.state;
@@ -95,7 +221,15 @@ class Appearance extends Component {
               <Fragment>
                 <Button
                   key={data.content._id}
-                  className={(selectedTheme==="Dark"||selectedTheme==="Scooter")?"btnOrange btnLight":(selectedTheme==="Leaf"?"btnOrange btnLeaf":(selectedTheme==="Moon"?"btnOrange btnMoon":"btnOrange"))}
+                  className={
+                    selectedTheme === "Dark" || selectedTheme === "Scooter"
+                      ? "btnOrange btnLight"
+                      : selectedTheme === "Leaf"
+                      ? "btnOrange btnLeaf"
+                      : selectedTheme === "Moon"
+                      ? "btnOrange btnMoon"
+                      : "btnOrange"
+                  }
                   onClick={() => window.open(`${data.content.url}`, "_blank")}>
                   {data.content.title}
                 </Button>
@@ -154,9 +288,7 @@ class Appearance extends Component {
                       <Col md={6} lg={4}>
                         <Button
                           className='selectTheme themeSeleted'
-                          onClick={() =>
-                            this._handleOnClickTheme("Light")
-                          }>
+                          onClick={() => this._handleOnClickTheme("Light")}>
                           <div className='themeLight'>
                             <div className='themeLightBtn'></div>
                             <div className='themeLightBtn'></div>
@@ -168,10 +300,7 @@ class Appearance extends Component {
                       <Col md={6} lg={4}>
                         <Button
                           className='selectTheme'
-                          onClick={() =>
-                            
-                            this._handleOnClickTheme("Dark")
-                          }>
+                          onClick={() => this._handleOnClickTheme("Dark")}>
                           <div className='themeDark'>
                             <div className='themeDarkBtn'></div>
                             <div className='themeDarkBtn'></div>
@@ -183,9 +312,7 @@ class Appearance extends Component {
                       <Col md={6} lg={4}>
                         <Button
                           className='selectTheme'
-                          onClick={() =>
-                            this._handleOnClickTheme("Scooter")
-                          }>
+                          onClick={() => this._handleOnClickTheme("Scooter")}>
                           <div className='themeScooter'>
                             <div className='themeScooterBtn'></div>
                             <div className='themeScooterBtn'></div>
@@ -197,9 +324,7 @@ class Appearance extends Component {
                       <Col md={6} lg={4}>
                         <Button
                           className='selectTheme'
-                          onClick={() =>
-                            this._handleOnClickTheme("Leaf")
-                          }>
+                          onClick={() => this._handleOnClickTheme("Leaf")}>
                           <div className='themeLeaf'>
                             <div className='themeLeafBtn'></div>
                             <div className='themeLeafBtn'></div>
@@ -211,9 +336,7 @@ class Appearance extends Component {
                       <Col md={6} lg={4}>
                         <Button
                           className='selectTheme'
-                          onClick={() =>
-                            this._handleOnClickTheme("Moon")
-                          }>
+                          onClick={() => this._handleOnClickTheme("Moon")}>
                           <div className='themeMoon'>
                             <div className='themeMoonBtn'></div>
                             <div className='themeMoonBtn'></div>
@@ -228,7 +351,11 @@ class Appearance extends Component {
               </div>
 
               <div className='profilePreviewWrap'>
-                <Button className='shareProfileBtn'>Share</Button>
+                <Button
+                  className='shareProfileBtn btnMoon'
+                  onClick={() => this._toggleModal(3)}>
+                  Share
+                </Button>
                 {/* change the theme class name accordingly, default is previewLight */}
                 <div
                   className={
@@ -267,6 +394,29 @@ class Appearance extends Component {
               </div>
             </Col>
           </Row>
+
+          {/* Modal for Share Link */}
+          <Modal
+            isOpen={this.state.modals[3]}
+            toggle={() => this._toggleModal(3)}
+            className='modal-dialog-centered'>
+            <ModalHeader toggle={() => this._toggleModal(3)}>
+              Share Link
+            </ModalHeader>
+            <ModalBody className='modalContent text-center'>
+              <Card className='userDetails mb-4'>
+                <CardBody>{this._socialShare()}</CardBody>
+              </Card>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                className='modalBtnCancel'
+                toggle={() => this._toggleModal(3)}
+                onClick={() => this._toggleModal(3)}>
+                Close
+              </Button>
+            </ModalFooter>
+          </Modal>
         </Container>
       </div>
     );
@@ -282,7 +432,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     addUserAvatar: (avatarLink) => dispatch(addUserAvatar(avatarLink)),
-    addTemplate:(theme) => dispatch(addTemplate(theme)),
+    addTemplate: (theme) => dispatch(addTemplate(theme)),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Appearance);

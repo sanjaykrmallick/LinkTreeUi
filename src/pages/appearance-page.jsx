@@ -18,7 +18,6 @@ class Appearance extends Component {
     super(props);
     this.state = {
       modals: [false, false],
-      defaultTheme: "Light",
       selectedTheme: "",
     };
     this._uploadImage = this._uploadImage.bind(this._uploadImage);

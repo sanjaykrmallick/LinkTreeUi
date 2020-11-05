@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
 import ReactDOM from "react-dom";
-
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   Col,
   Container,
@@ -23,11 +23,8 @@ import {
   createContent,
   getUserData,
 } from "../http/http-calls";
-import {
-  addContent,
-  addId,
-} from "../redux/actions/content_data";
-import{addUserAvatar,addTemplate} from "../redux/actions/user_data"
+import { addContent, addId } from "../redux/actions/content_data";
+import { addUserAvatar, addTemplate } from "../redux/actions/user_data";
 import { connect } from "react-redux";
 import { ToastsStore } from "react-toasts";
 import {
@@ -40,31 +37,35 @@ import {
 } from "react-share";
 
 class Links extends Component {
-  state = {
-    modals: [false, false],
-    contentData: {
-      title: "",
-      url: "",
-    },
-    isDirty: {
-      title: "",
-      url: "",
-    },
-    editContentData: {
-      title: "",
-      url: "",
-    },
-    findPageNull: false,
-    pageContents: [],
-    pageId: "",
-    errors: {},
-    dltModalId: "",
-    addLinkFlag: false,
-    editLinkFlag: false,
-    edtModalId: "",
-    contentDatanull: false,
-    selectedTheme:"",
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      modals: [false, false],
+      contentData: {
+        title: "",
+        url: "",
+      },
+      isDirty: {
+        title: "",
+        url: "",
+      },
+      editContentData: {
+        title: "",
+        url: "",
+      },
+      findPageNull: false,
+      pageContents: [],
+      pageId: "",
+      errors: {},
+      dltModalId: "",
+      addLinkFlag: false,
+      editLinkFlag: false,
+      edtModalId: "",
+      contentDatanull: false,
+      selectedTheme: "",
+    };
+    this.onDragEnd = this.onDragEnd.bind(this);
+  }
 
   componentDidMount() {
     const { pageContents } = this.state;
@@ -86,8 +87,8 @@ class Links extends Component {
     getUserData().then((res) => {
       console.log(res);
       this.props.addUserAvatar(res.user.avatarLink);
-      this.props.addTemplate(res.user.template)
-      this.setState({selectedTheme:res.user.template})
+      this.props.addTemplate(res.user.template);
+      this.setState({ selectedTheme: res.user.template });
     });
   }
 
@@ -355,20 +356,70 @@ class Links extends Component {
     });
   };
 
-  _socialShare=()=>{
+  //// code for list reordering
+  reorder = (list, startIndex, endIndex) => {
+    const { pageContents, pageId } = this.state;
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    console.log(result);
+    const obj = {
+      contents: pageContents,
+    };
+    createContent(obj, pageId).then((res) => {
+      console.log("createContentLst: ", res);
+      const lastContent = res.page.contents[res.page.contents.length - 1];
+      console.log("newAddedContent:", lastContent);
+      // this.props.addContent(content);
+      this.setState({ pageContents: res.page.contents });
+      console.log("added data list: ", pageContents);
+    });
+    this.setState({ pageContents: result });
+    return result;
+  };
+
+  getItemStyle = (isDragging, draggableStyle) => ({
+    // some basic styles to make the items look a bit nicer
+    userSelect: "none",
+    // change background colour if dragging
+    background: isDragging ? "lightgreen" : "#fff",
+    // styles we need to apply on draggables
+    ...draggableStyle,
+  });
+
+  getListStyle = (isDraggingOver) => ({
+    background: isDraggingOver ? "lightblue" : "#fff",
+  });
+
+  onDragEnd(result) {
+    // dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+
+    const pageContents = this.reorder(
+      this.state.pageContents,
+      result.source.index,
+      result.destination.index
+    );
+
+    this.setState({
+      pageContents,
+    });
+  }
+
+  _socialShare = () => {
     return (
       <Fragment>
         <Modal isOpen={this.state.modals[1]} className='modal-dialog-centered'>
           <ModalHeader>Social Share</ModalHeader>
           <ModalBody className='modalContent'>
-            <FormGroup>
-
-            </FormGroup>
+            <FormGroup></FormGroup>
           </ModalBody>
         </Modal>
       </Fragment>
-    )
-  }
+    );
+  };
 
   render() {
     const {
@@ -378,69 +429,96 @@ class Links extends Component {
       pageId,
       addLinkFlag,
       editContentData,
-      selectedTheme
+      selectedTheme,
     } = this.state;
     const cardBodyData = () => {
       if (pageContents === undefined || pageContents === null) {
         console.log("page is empty while displaying");
       } else {
-        return pageContents.map((data) => {
-          if (data.content.url === "" || data.content.title === "") {
-            return false;
-          } else {
-            return (
-              <Fragment>
-                <div className='addedLinksWrap'>
-                  <div className='moveLink'>
-                    <i className='fa fa-ellipsis-v'></i>
-                  </div>
-                  <div className='addedLinkDetails'>
-                    <h5>{data.content.title}</h5>
-                    <p>{data.content.url}</p>
-                    <div className='actionBtnWrap'>
-                      <CustomInput
-                        type='switch'
-                        id={"exampleCustomSwitch" + data._id}
-                        name='customSwitch'
-                        label=''
-                        checked={data.status}
-                        className='disableLink'
-                        key={data._id}
-                        onClick={(e) =>
-                          this._handleToggle(e.target.checked, data._id)
-                        }
-                      />
+        return (
+          <DragDropContext onDragEnd={this.onDragEnd}>
+            <Droppable droppableId='droppable'>
+              {(provided, snapshot) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  style={this.getListStyle(snapshot.isDraggingOver)}>
+                  {pageContents.map((data, index) => (
+                    <Draggable
+                      key={data._id}
+                      draggableId={data._id}
+                      index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={this.getItemStyle(
+                            snapshot.isDragging,
+                            provided.draggableProps.style
+                          )}>
+                          <Fragment>
+                            <div className='addedLinksWrap'>
+                              <div className='moveLink'>
+                                <i className='fa fa-ellipsis-v'></i>
+                              </div>
+                              <div className='addedLinkDetails'>
+                                <h5>{data.content.title}</h5>
+                                <p>{data.content.url}</p>
+                                <div className='actionBtnWrap'>
+                                  <CustomInput
+                                    type='switch'
+                                    id={"exampleCustomSwitch" + data._id}
+                                    name='customSwitch'
+                                    label=''
+                                    checked={data.status}
+                                    className='disableLink'
+                                    key={data._id}
+                                    onClick={(e) =>
+                                      this._handleToggle(
+                                        e.target.checked,
+                                        data._id
+                                      )
+                                    }
+                                  />
 
-                      <Button
-                        className='delLinkBtn'
-                        onClick={() => {
-                          this.setState({
-                            edtModalId: data._id,
-                            contentData: {
-                              title: data.content.title,
-                              url: data.content.url,
-                            },
-                            editLinkFlag: true,
-                          });
-                          this._toggleModal(1);
-                        }}>
-                        <i className='fa fa-pencil'></i>
-                      </Button>
-                      <Button
-                        className='delLinkBtn'
-                        onClick={() => {
-                          this.setState({ dltModalId: data._id });
-                          this._toggleModal(2);
-                        }}>
-                        <i className='fa fa-trash-o text-danger'></i>
-                      </Button>
-                    </div>
-                  </div>
+                                  <Button
+                                    className='delLinkBtn'
+                                    onClick={() => {
+                                      this.setState({
+                                        edtModalId: data._id,
+                                        contentData: {
+                                          title: data.content.title,
+                                          url: data.content.url,
+                                        },
+                                        editLinkFlag: true,
+                                      });
+                                      this._toggleModal(1);
+                                    }}>
+                                    <i className='fa fa-pencil'></i>
+                                  </Button>
+                                  <Button
+                                    className='delLinkBtn'
+                                    onClick={() => {
+                                      this.setState({ dltModalId: data._id });
+                                      this._toggleModal(2);
+                                    }}>
+                                    <i className='fa fa-trash-o text-danger'></i>
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </Fragment>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
                 </div>
-              </Fragment>
-            );
-          }
-        });
+              )}
+            </Droppable>
+          </DragDropContext>
+        );
       }
     };
     const showButton = () => {
@@ -454,7 +532,15 @@ class Links extends Component {
               <Fragment>
                 <Button
                   key={data.content._id}
-                  className={(selectedTheme==="Dark"||selectedTheme==="Scooter")?"btnOrange btnLight":(selectedTheme==="Leaf"?"btnOrange btnLeaf":(selectedTheme==="Moon"?"btnOrange btnMoon":"btnOrange"))}
+                  className={
+                    selectedTheme === "Dark" || selectedTheme === "Scooter"
+                      ? "btnOrange btnLight"
+                      : selectedTheme === "Leaf"
+                      ? "btnOrange btnLeaf"
+                      : selectedTheme === "Moon"
+                      ? "btnOrange btnMoon"
+                      : "btnOrange"
+                  }
                   onClick={() => window.open(`${data.content.url}`, "_blank")}>
                   {data.content.title}
                 </Button>
@@ -507,20 +593,23 @@ class Links extends Component {
 
                 <Card className='userDetails mb-4'>
                   <CardBody>
-                    {
-                      this.state.findPageNull ? (
-                        <Fragment>NO LINKS AVAILABLE</Fragment>
-                      ) : (
-                        cardBodyData()
-                      )
-                    }
+                    {this.state.findPageNull ? (
+                      <Fragment>NO LINKS AVAILABLE</Fragment>
+                    ) : (
+                      cardBodyData()
+                    )}
                   </CardBody>
                 </Card>
               </div>
 
               <div className='profilePreviewWrap'>
-              <Button className='shareProfileBtn' onClick={()=>this._socialShare}>Share</Button>
-                <div className={
+                <Button
+                  className='shareProfileBtn'
+                  onClick={() => this._socialShare}>
+                  Share
+                </Button>
+                <div
+                  className={
                     `profilePreview` + ` ` + `preview${selectedTheme}`
                   }>
                   <div className='text-center'>
@@ -539,7 +628,8 @@ class Links extends Component {
                         />
                       )}
                     </Label>
-                    <h5 className={
+                    <h5
+                      className={
                         selectedTheme === "Dark" || selectedTheme === "Scooter"
                           ? "text-white"
                           : "text-black"
@@ -667,7 +757,7 @@ const mapDispatchToProps = (dispatch) => {
     addId: (_id) => dispatch(addId(_id)),
     // addUser: (avatarLink) => dispatch(addUser(avatarLink))
     addUserAvatar: (avatarLink) => dispatch(addUserAvatar(avatarLink)),
-    addTemplate:(theme) => dispatch(addTemplate(theme)),
+    addTemplate: (theme) => dispatch(addTemplate(theme)),
   };
 };
 

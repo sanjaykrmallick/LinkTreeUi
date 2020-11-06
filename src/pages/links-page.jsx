@@ -475,13 +475,20 @@ class Links extends Component {
         <div>
           <h4>Copy to Clipboard</h4>
           <div className='container'>
-            <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}>
               <textarea className='form-control' value={userProfileUrl} />
               <br />
               <CopyToClipboard
                 text={userProfileUrl}
                 onCopy={() => this.setState({ copied: true })}>
-                <button className="btn btn-info" style={{width:"60%"}} >Copy to clipboard with button</button>
+                <button className='btn btn-info' style={{ width: "60%" }}>
+                  Copy to clipboard with button
+                </button>
               </CopyToClipboard>
               {this.state.copied ? (
                 <span style={{ color: "red" }}>Copied.</span>
@@ -774,7 +781,7 @@ class Links extends Component {
                 className='modalBtnSave'
                 toggle={() => this._toggleModal(1)}
                 onClick={() => {
-                  addDelModal
+                  addDelModal==="add"
                     ? this._handleOnSubmitAddContent()
                     : this._handleOnSubmitEditModal();
                 }}>

@@ -2,6 +2,9 @@ import React, { Component, Suspense } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import * as router from "react-router-dom";
 import { Container } from "reactstrap";
+import { connect } from "react-redux";
+import { removeUser } from "../../redux/actions/user_data";
+import { ToastsStore } from "react-toasts";
 
 import {
   AppAside,
@@ -33,8 +36,11 @@ class DefaultLayout extends Component {
 
   signOut(e) {
     e.preventDefault();
+    this.props.removeUser();
     localStorage.clear();
-    this.props.history.push("/login");
+    
+   ToastsStore.success("Logged out successfully...");
+    this.props.history.push("/login"); 
   }
 
   componentDidMount() {
@@ -95,5 +101,17 @@ class DefaultLayout extends Component {
     );
   }
 }
+const mapStateToProps = (state) => {
+  return {
+    userData: state.userData,
+  };
+};
 
-export default DefaultLayout;
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    removeUser: () => dispatch(removeUser()),
+  };
+};
+export default connect(mapStateToProps,  mapDispatchToProps)(DefaultLayout);
+// export default DefaultLayout;

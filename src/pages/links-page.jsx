@@ -25,6 +25,8 @@ import {
 } from "../http/http-calls";
 import { addContent, addId } from "../redux/actions/content_data";
 import { addUserAvatar, addTemplate } from "../redux/actions/user_data";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import copy from "copy-to-clipboard";
 import { connect } from "react-redux";
 import { ToastsStore } from "react-toasts";
 import {
@@ -68,6 +70,8 @@ class Links extends Component {
       contentDatanull: false,
       selectedTheme: "",
       addDelModal: "",
+      userProfileUrl: "",
+      copied: false,
     };
     this.onDragEnd = this.onDragEnd.bind(this);
   }
@@ -94,6 +98,14 @@ class Links extends Component {
       this.props.addUserAvatar(res.user.avatarLink);
       this.props.addTemplate(res.user.template);
       this.setState({ selectedTheme: res.user.template });
+    });
+
+    let userUrl = window.location.href;
+    userUrl = userUrl.substring(0, userUrl.lastIndexOf("/"));
+    console.log(userUrl);
+    this.setState({
+      userProfileUrl:
+        `${userUrl}` + "/profile" + "/" + `${this.props.userData.userName}`,
     });
   }
 
@@ -137,7 +149,7 @@ class Links extends Component {
             } else if (
               contentData.url.trim().length &&
               !new RegExp(
-                "(https?:\\//\\//(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\\//\\//(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})"
+                "^http(s?):\\/\\/(www\\.)?(((\\w+(([\\.\\-]{1}([a-z]{2,})+)+)(\\/[a-zA-Z0-9\\_\\=\\?\\&\\.\\#\\-\\W]*)*$)|(\\w+((\\.([a-z]{2,})+)+)(\\:[0-9]{1,5}(\\/[a-zA-Z0-9\\_\\=\\?\\&\\.\\#\\-\\W]*)*$)))|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}(([0-9]|([1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]+)+)(\\/[a-zA-Z0-9\\_\\=\\?\\&\\.\\#\\-\\W]*)*)((\\:[0-9]{1,5}(\\/[a-zA-Z0-9\\_\\=\\?\\&\\.\\#\\-\\W]*)*$)*))$"
               ).test(contentData.url)
             ) {
               errors.url = "*Enter a valid URL";
@@ -346,7 +358,6 @@ class Links extends Component {
 
   //// code for list reordering
   reorder = (list, startIndex, endIndex) => {
-    const { pageContents, pageId } = this.state;
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
@@ -395,98 +406,87 @@ class Links extends Component {
       // console.log("added data list: ", pageContents);
     });
   }
-
   _socialShare = () => {
-    let userUrl = window.location.href;
-    userUrl = userUrl.substring(0, userUrl.lastIndexOf("/"));
-    console.log(userUrl);
+    const { userProfileUrl } = this.state;
 
     return (
       <Fragment>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div>
-            <FacebookShareButton
-              url={
-                `${userUrl}` +
-                "/profile" +
-                "/" +
-                `${this.props.userData.userName}`
-              }
-              title='Facebook : '
-              className='Demo__some-network__share-button'>
-              <FacebookIcon size={40} round />
-              <p style={{ margin: "0" }}>Facebook</p>
-            </FacebookShareButton>
+        <div>
+          <h4>Social Link</h4>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div>
+              <FacebookShareButton
+                url={userProfileUrl}
+                title='Facebook : '
+                className='Demo__some-network__share-button'>
+                <FacebookIcon size={40} round />
+                <p style={{ margin: "0" }}>Facebook</p>
+              </FacebookShareButton>
+            </div>
+            <div>
+              <FacebookMessengerShareButton
+                url={userProfileUrl}
+                title='Messenger : '
+                className='Demo__some-network__share-button'>
+                <FacebookMessengerIcon size={40} round />
+                <p style={{ margin: "0" }}>Messenger</p>
+              </FacebookMessengerShareButton>
+            </div>
+            <div>
+              <LinkedinShareButton
+                url={userProfileUrl}
+                title='Linkedin : '
+                className='Demo__some-network__share-button'>
+                <LinkedinIcon size={40} round />
+                <p style={{ margin: "0" }}>Linkedin</p>
+              </LinkedinShareButton>
+            </div>
+            <div>
+              <TelegramShareButton
+                url={userProfileUrl}
+                title='Telegram : '
+                className='Demo__some-network__share-button'>
+                <TelegramIcon size={40} round />
+                <p style={{ margin: "0" }}>Telegram</p>
+              </TelegramShareButton>
+            </div>
+            <div>
+              <TwitterShareButton
+                url={userProfileUrl}
+                title='Twitter : '
+                className='Demo__some-network__share-button'>
+                <TwitterIcon size={40} round />
+                <p style={{ margin: "0" }}>Twitter</p>
+              </TwitterShareButton>
+            </div>
+            <div>
+              <WhatsappShareButton
+                url={userProfileUrl}
+                title='Whatsapp : '
+                className='Demo__some-network__share-button'>
+                <WhatsappIcon size={40} round />
+                <p style={{ margin: "0" }}>Whatsapp</p>
+              </WhatsappShareButton>
+            </div>
           </div>
-          <div>
-            <FacebookMessengerShareButton
-              url={
-                `${userUrl}` +
-                "/profile" +
-                "/" +
-                `${this.props.userData.userName}`
-              }
-              title='Messenger : '
-              className='Demo__some-network__share-button'>
-              <FacebookMessengerIcon size={40} round />
-              <p style={{ margin: "0" }}>Messenger</p>
-            </FacebookMessengerShareButton>
-          </div>
-          <div>
-            <LinkedinShareButton
-              url={
-                `${userUrl}` +
-                "/profile" +
-                "/" +
-                `${this.props.userData.userName}`
-              }
-              title='Linkedin : '
-              className='Demo__some-network__share-button'>
-              <LinkedinIcon size={40} round />
-              <p style={{ margin: "0" }}>Linkedin</p>
-            </LinkedinShareButton>
-          </div>
-          <div>
-            <TelegramShareButton
-              url={
-                `${userUrl}` +
-                "/profile" +
-                "/" +
-                `${this.props.userData.userName}`
-              }
-              title='Telegram : '
-              className='Demo__some-network__share-button'>
-              <TelegramIcon size={40} round />
-              <p style={{ margin: "0" }}>Telegram</p>
-            </TelegramShareButton>
-          </div>
-          <div>
-            <TwitterShareButton
-              url={
-                `${userUrl}` +
-                "/profile" +
-                "/" +
-                `${this.props.userData.userName}`
-              }
-              title='Twitter : '
-              className='Demo__some-network__share-button'>
-              <TwitterIcon size={40} round />
-              <p style={{ margin: "0" }}>Twitter</p>
-            </TwitterShareButton>
-          </div>
-          <div>
-            <WhatsappShareButton
-              url={
-                `${userUrl}` +
-                "/profile" +
-                "/" +
-                `${this.props.userData.userName}`
-              }
-              title='Whatsapp : '
-              className='Demo__some-network__share-button'>
-              <WhatsappIcon size={40} round />
-              <p style={{ margin: "0" }}>Whatsapp</p>
-            </WhatsappShareButton>
+        </div>
+        <br />
+        <hr />
+        <div>
+          <h4>Copy to Clipboard</h4>
+          <div className='container'>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+              <textarea className='form-control' value={userProfileUrl} />
+              <br />
+              <CopyToClipboard
+                text={userProfileUrl}
+                onCopy={() => this.setState({ copied: true })}>
+                <button className="btn btn-info" style={{width:"60%"}} >Copy to clipboard with button</button>
+              </CopyToClipboard>
+              {this.state.copied ? (
+                <span style={{ color: "red" }}>Copied.</span>
+              ) : null}
+            </div>
           </div>
         </div>
       </Fragment>
@@ -563,6 +563,7 @@ class Links extends Component {
                                           url: data.content.url,
                                         },
                                         addDelModal: "edit",
+                                        errors: {},
                                       });
                                       this._toggleModal(1);
                                     }}>
@@ -658,6 +659,7 @@ class Links extends Component {
                           title: "",
                           url: "",
                         },
+                        errors: {},
                       });
                       this._toggleModal(1);
                     }}>
@@ -711,7 +713,7 @@ class Links extends Component {
                   </div>
 
                   <div className='mt-4'>{showButton()}</div>
-                </div>{" "}
+                </div>
                 {/* profilePreview */}
               </div>
             </Col>
@@ -772,7 +774,7 @@ class Links extends Component {
                 className='modalBtnSave'
                 toggle={() => this._toggleModal(1)}
                 onClick={() => {
-                  addLinkFlag
+                  addDelModal
                     ? this._handleOnSubmitAddContent()
                     : this._handleOnSubmitEditModal();
                 }}>

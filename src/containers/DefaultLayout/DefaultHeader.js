@@ -52,7 +52,7 @@ class DefaultHeader extends Component {
             <DropdownItem>
               <Link to="/profile-preview"><i className="fa fa-user"></i> Profile</Link>
               </DropdownItem>
-              <DropdownItem onClick={e =>{this.props.onLogout(e); window.location.reload()} }><i className="fa fa-power-off"></i> Logout</DropdownItem>
+              <DropdownItem onClick={e =>{this.props.onLogout(e)} }><i className="fa fa-power-off"></i> Logout</DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
         </Nav>

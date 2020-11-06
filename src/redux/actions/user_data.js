@@ -9,7 +9,8 @@ export const addUser = (user) => {
 
 export const removeUser = () => {
     return {
-        type: REMOVE_USERDATA
+        type: REMOVE_USERDATA,
+        
     }
 }
 

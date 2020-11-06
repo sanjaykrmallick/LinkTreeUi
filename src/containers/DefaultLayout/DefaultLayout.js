@@ -33,6 +33,7 @@ class DefaultLayout extends Component {
 
   signOut(e) {
     e.preventDefault();
+    // debugger;
     localStorage.clear();
     this.props.history.push("/login");
   }

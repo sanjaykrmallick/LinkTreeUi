@@ -64,11 +64,10 @@ class Links extends Component {
       pageId: "",
       errors: {},
       dltModalId: "",
-      addLinkFlag: false,
-      editLinkFlag: false,
       edtModalId: "",
       contentDatanull: false,
       selectedTheme: "",
+      addDelModal: "",
     };
     this.onDragEnd = this.onDragEnd.bind(this);
   }
@@ -181,6 +180,7 @@ class Links extends Component {
       if (!errors) {
         const { contentData } = this.state;
         console.log("Final API call: ", contentData);
+        this.setState({ addLinkFlag: false });
         this._addContentData();
       }
     });
@@ -199,6 +199,7 @@ class Links extends Component {
         this._editModal();
       }
     });
+    this.setState({ editLinkFlag: false });
   };
 
   _addContentData = () => {
@@ -255,8 +256,6 @@ class Links extends Component {
       };
       createContent(obj, pageId).then((res) => {
         console.log("createContentLst: ", res);
-        const lastContent = res.page.contents[res.page.contents.length - 1];
-        console.log("newAddedContent:", lastContent);
         this.setState({ pageContents: res.page.contents });
         console.log("added data list: ", pageContents);
       });
@@ -275,45 +274,30 @@ class Links extends Component {
   _handleToggle = (flag, _id) => {
     const { pageContents, pageId } = this.state;
     if (flag) {
-      return pageContents.map((e) => {
+      pageContents.map((e) => {
         if (_id === e._id) {
-          e.status = true;
+          e.status = flag;
         }
         //setstate and APi
         this.setState({ pageContents });
-        const obj = {
-          contents: pageContents,
-        };
-        createContent(obj, pageId).then((res) => {
-          console.log("createContentLst: ", res);
-          const lastContent = res.page.contents[res.page.contents.length - 1];
-          console.log("newAddedContent:", lastContent);
-          // this.props.addContent(content);
-          this.setState({ pageContents: res.page.contents });
-          console.log("added data list: ", pageContents);
-        });
-        window.location.reload(); //window
       });
     } else {
       pageContents.map((e) => {
         if (_id === e._id) {
-          e.status = false;
+          e.status = flag;
         }
         //setstate and APi
         this.setState({ pageContents });
-        const obj = {
-          contents: pageContents,
-        };
-        createContent(obj, pageId).then((res) => {
-          console.log("createContentLst: ", res);
-          const lastContent = res.page.contents[res.page.contents.length - 1];
-          console.log("newAddedContent:", lastContent);
-          this.setState({ pageContents: res.page.contents });
-          console.log("added data list: ", pageContents);
-        });
       });
     }
-    console.log(pageContents);
+    const obj = {
+      contents: pageContents,
+    };
+    createContent(obj, pageId).then((res) => {
+      console.log("createContentLst: ", res);
+      this.setState({ pageContents: res.page.contents });
+      console.log("added data list: ", pageContents);
+    });
   };
 
   _editModal = () => {
@@ -340,8 +324,8 @@ class Links extends Component {
       };
       createContent(obj, pageId).then((res) => {
         console.log("createContentLst: ", res);
-        const lastContent = res.page.contents[res.page.contents.length - 1];
-        console.log("newAddedContent:", lastContent);
+        // const lastContent = res.page.contents[res.page.contents.length - 1];
+        // console.log("newAddedContent:", lastContent);
         this.setState({ pageContents: res.page.contents });
         console.log("added data list: ", pageContents);
       });
@@ -366,19 +350,6 @@ class Links extends Component {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
-    console.log(result);
-    const obj = {
-      contents: result,
-    };
-    createContent(obj, pageId).then((res) => {
-      console.log("createContentLst: ", res);
-      const lastContent = res.page.contents[res.page.contents.length - 1];
-      console.log("newAddedContent:", lastContent);
-      // this.props.addContent(content);
-      this.setState({ pageContents: res.page.contents });
-      console.log("added data list: ", pageContents);
-    });
-    this.setState({ pageContents: result });
     return result;
   };
 
@@ -396,6 +367,7 @@ class Links extends Component {
   });
 
   onDragEnd(result) {
+    const { pageId } = this.state;
     // dropped outside the list
     if (!result.destination) {
       return;
@@ -409,6 +381,18 @@ class Links extends Component {
 
     this.setState({
       pageContents,
+    });
+
+    this.props.addContent(pageContents);
+    const obj = {
+      contents: pageContents,
+    };
+    createContent(obj, pageId).then((res) => {
+      console.log("createContentLst: ", res);
+      // const lastContent = res.page.contents[res.page.contents.length - 1];
+      // console.log("newAddedContent:", lastContent);
+      this.setState({ pageContents: res.page.contents });
+      // console.log("added data list: ", pageContents);
     });
   }
 
@@ -517,6 +501,7 @@ class Links extends Component {
       pageId,
       addLinkFlag,
       selectedTheme,
+      addDelModal,
     } = this.state;
     const cardBodyData = () => {
       if (pageContents === undefined || pageContents === null) {
@@ -569,7 +554,7 @@ class Links extends Component {
                                     }
                                   />
                                   <Button
-                                    className='delLinkBtn'
+                                    className='editLinkBtn'
                                     onClick={() => {
                                       this.setState({
                                         edtModalId: data._id,
@@ -577,7 +562,7 @@ class Links extends Component {
                                           title: data.content.title,
                                           url: data.content.url,
                                         },
-                                        editLinkFlag: true,
+                                        addDelModal: "edit",
                                       });
                                       this._toggleModal(1);
                                     }}>
@@ -648,8 +633,6 @@ class Links extends Component {
         createContent(obj, pageId).then((res) => {
           // debugger;
           console.log("deletedContent: ", res);
-          const lastContent = res.page.contents[res.page.contents.length - 1];
-          console.log("LastContent:", lastContent);
           this.setState({ pageContents: res.page.contents });
           console.log("New data list: ", pageContents);
         });
@@ -669,7 +652,13 @@ class Links extends Component {
                   <Button
                     className='addBtn'
                     onClick={() => {
-                      this.setState({ addLinkFlag: true });
+                      this.setState({
+                        addDelModal: "add",
+                        contentData: {
+                          title: "",
+                          url: "",
+                        },
+                      });
                       this._toggleModal(1);
                     }}>
                     <i className='fa fa-plus mr-1'></i> Add New Link
@@ -734,7 +723,7 @@ class Links extends Component {
             toggle={() => this._toggleModal(1)}
             className='modal-dialog-centered'>
             <ModalHeader toggle={() => this._toggleModal(1)}>
-              {addLinkFlag ? "Add New Link" : "Edit Link"}
+              {addDelModal === "add" ? "Add New Link" : "Edit Link"}
             </ModalHeader>
             <ModalBody className='modalContent'>
               <FormGroup>
@@ -787,7 +776,7 @@ class Links extends Component {
                     ? this._handleOnSubmitAddContent()
                     : this._handleOnSubmitEditModal();
                 }}>
-                Create
+                {addDelModal === "add" ? "Create" : "Edit"}
               </Button>
             </ModalFooter>
           </Modal>

@@ -204,41 +204,42 @@ class Appearance extends Component {
       </Fragment>
     );
   };
-
+   showButton = () => {
+    const { selectedTheme } = this.state;
+    if (
+      this.props.contentData.contents === undefined ||
+      this.props.contentData.contents === null
+    ) {
+      console.log("page is empty while displaying");
+    } else {
+      // this.props.userContents(pageContents)
+      return this.props.contentData.contents.map((data) => {
+        if (data.status) {
+          return (
+            <Fragment>
+              <Button
+                key={data.content._id}
+                className={
+                  selectedTheme === "Dark" || selectedTheme === "Scooter"
+                    ? "btnOrange btnLight"
+                    : selectedTheme === "Leaf"
+                    ? "btnOrange btnLeaf"
+                    : selectedTheme === "Moon"
+                    ? "btnOrange btnMoon"
+                    : "btnOrange"
+                }
+                onClick={() => window.open(`${data.content.url}`, "_blank")}>
+                {data.content.title}
+              </Button>
+            </Fragment>
+          );
+        }
+      });
+    }
+  };
   render() {
     const { selectedTheme } = this.state;
-    const showButton = () => {
-      if (
-        this.props.contentData.contents === undefined ||
-        this.props.contentData.contents === null
-      ) {
-        console.log("page is empty while displaying");
-      } else {
-        // this.props.userContents(pageContents)
-        return this.props.contentData.contents.map((data) => {
-          if (data.status) {
-            return (
-              <Fragment>
-                <Button
-                  key={data.content._id}
-                  className={
-                    selectedTheme === "Dark" || selectedTheme === "Scooter"
-                      ? "btnOrange btnLight"
-                      : selectedTheme === "Leaf"
-                      ? "btnOrange btnLeaf"
-                      : selectedTheme === "Moon"
-                      ? "btnOrange btnMoon"
-                      : "btnOrange"
-                  }
-                  onClick={() => window.open(`${data.content.url}`, "_blank")}>
-                  {data.content.title}
-                </Button>
-              </Fragment>
-            );
-          }
-        });
-      }
-    };
+    
     // 'btnOrange btn btnLeaf'
     return (
       <div className='app flex-row animated fadeIn innerPagesBg'>
@@ -287,7 +288,7 @@ class Appearance extends Component {
                     <Row>
                       <Col md={6} lg={4}>
                         <Button
-                          className='selectTheme themeSeleted'
+                          className={selectedTheme==="Light"?"selectTheme themeSeleted":"selectTheme"}
                           onClick={() => this._handleOnClickTheme("Light")}>
                           <div className='themeLight'>
                             <div className='themeLightBtn'></div>
@@ -299,7 +300,7 @@ class Appearance extends Component {
                       </Col>
                       <Col md={6} lg={4}>
                         <Button
-                          className='selectTheme'
+                          className={selectedTheme==="Dark"?"selectTheme themeSeleted":"selectTheme"}
                           onClick={() => this._handleOnClickTheme("Dark")}>
                           <div className='themeDark'>
                             <div className='themeDarkBtn'></div>
@@ -311,7 +312,7 @@ class Appearance extends Component {
                       </Col>
                       <Col md={6} lg={4}>
                         <Button
-                          className='selectTheme'
+                          className={selectedTheme==="Scooter"?"selectTheme themeSeleted":"selectTheme"}
                           onClick={() => this._handleOnClickTheme("Scooter")}>
                           <div className='themeScooter'>
                             <div className='themeScooterBtn'></div>
@@ -323,7 +324,7 @@ class Appearance extends Component {
                       </Col>
                       <Col md={6} lg={4}>
                         <Button
-                          className='selectTheme'
+                          className={selectedTheme==="Leaf"?"selectTheme themeSeleted":"selectTheme"}
                           onClick={() => this._handleOnClickTheme("Leaf")}>
                           <div className='themeLeaf'>
                             <div className='themeLeafBtn'></div>
@@ -335,7 +336,7 @@ class Appearance extends Component {
                       </Col>
                       <Col md={6} lg={4}>
                         <Button
-                          className='selectTheme'
+                          className={selectedTheme==="Moon"?"selectTheme themeSeleted":"selectTheme"}
                           onClick={() => this._handleOnClickTheme("Moon")}>
                           <div className='themeMoon'>
                             <div className='themeMoonBtn'></div>
@@ -388,7 +389,7 @@ class Appearance extends Component {
                       }>{`@${this.props.userData.userName}`}</h5>
                   </div>
 
-                  <div className='mt-4'>{showButton()}</div>
+                  <div className='mt-4'>{this.showButton()}</div>
                 </div>{" "}
                 {/* profilePreview */}
               </div>

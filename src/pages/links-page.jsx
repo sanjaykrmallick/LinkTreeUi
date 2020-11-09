@@ -26,9 +26,10 @@ import {
 import { addContent, addId } from "../redux/actions/content_data";
 import { addUserAvatar, addTemplate } from "../redux/actions/user_data";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import copy from "copy-to-clipboard";
+
 import { connect } from "react-redux";
-import { ToastsStore } from "react-toasts";
+import  QRCode  from "qrcode.react";
+
 import {
   FacebookShareButton,
   FacebookMessengerShareButton,
@@ -412,7 +413,8 @@ class Links extends Component {
     return (
       <Fragment>
         <div>
-          <h4>Social Link</h4>
+          <h6>Social Link</h6>
+          <br />
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <div>
               <FacebookShareButton
@@ -473,7 +475,7 @@ class Links extends Component {
         <br />
         <hr />
         <div>
-          <h4>Copy to Clipboard</h4>
+          <h6>Copy to Clipboard</h6>
           <div className='container'>
             <div
               style={{
@@ -493,6 +495,22 @@ class Links extends Component {
               {this.state.copied ? (
                 <span style={{ color: "red" }}>Copied.</span>
               ) : null}
+            </div>
+          </div>
+        </div>
+        <br />
+        <hr />
+        <div>
+          <h6>QR Code</h6>
+          <div className='container'>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}>
+              <QRCode value={userProfileUrl} fgColor="#333"
+            bgColor="#fff" renderAs="svg"/>
             </div>
           </div>
         </div>
@@ -781,7 +799,7 @@ class Links extends Component {
                 className='modalBtnSave'
                 toggle={() => this._toggleModal(1)}
                 onClick={() => {
-                  addDelModal==="add"
+                  addDelModal === "add"
                     ? this._handleOnSubmitAddContent()
                     : this._handleOnSubmitEditModal();
                 }}>

@@ -48,6 +48,7 @@ class Appearance extends Component {
         width: 30,
         aspect: 1,
       },
+      imgUpload:false,
     };
     this._uploadImage = this._uploadImage.bind(this._uploadImage);
   }
@@ -324,6 +325,19 @@ class Appearance extends Component {
       );
     });
   }
+  onClickImage=()=>{
+    this.setState({croppedImageUrl:"",src:"",imgUpload:false})
+    this._toggleModal(4)
+  }
+  onClickUpload=()=>{
+    if(this.state.src===null || this.state.src===""){
+      this.setState({imgUpload:true})
+      
+    }else{
+      this._uploadImage()
+    }
+    
+  }
 
   render() {
     const { selectedTheme, crop, croppedImageUrl, src } = this.state;
@@ -351,7 +365,7 @@ class Appearance extends Component {
                           style={{ display: "none" }}
                           // onChange={(e) => this._uploadImage(e)}
                           onChange={this.onSelectFile}
-                          onClick={() => this._toggleModal(4)}
+                          onClick={this.onClickImage}
                         />
                         {this.props.userData.avatarLink ? (
                           <img
@@ -552,7 +566,7 @@ class Appearance extends Component {
                     />
                   )}
                 </CardBody>
-                  {/* {this.state.imgRes?<h6>Uploaded Successfully</h6>:<Fragment></Fragment>} */}
+                  {this.state.imgUpload?<h6 style={{color:"red"}}>No File Selected</h6>:<Fragment></Fragment>}
               </Card>
             </ModalBody>
             <ModalFooter>
@@ -567,7 +581,7 @@ class Appearance extends Component {
                 className='modalBtnSave'
                 toggle={() => this._toggleModal(4)}
                 //onclick
-                onClick={this._uploadImage}>
+                onClick={this.onClickUpload}>
                 Upload
               </Button>
             </ModalFooter>

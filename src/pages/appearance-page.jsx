@@ -86,8 +86,9 @@ class Appearance extends Component {
               console.log("cloudinary res upload", res);
               if (!res.error) {
                 this.props.addUserAvatar(res.user.avatarLink);
-                this._toggleModal(4)
               }
+              this._toggleModal(4)
+                this.setState({src:null})
             })
             .catch((err) => console.log(err));
         }
@@ -258,7 +259,9 @@ class Appearance extends Component {
         this.setState({ src: reader.result })
       );
       reader.readAsDataURL(e.target.files[0]);
+      this.onClickImage()
     }
+    
   };
 
   // If you setState the crop in here you should return false.
@@ -316,8 +319,6 @@ class Appearance extends Component {
             return;
           }
           blob.name = fileName;
-          // window.URL.revokeObjectURL(this.fileUrl);
-          // this.fileUrl = window.URL.createObjectURL(blob);
           resolve(blob);
         },
         "image/jpeg",
@@ -326,8 +327,10 @@ class Appearance extends Component {
     });
   }
   onClickImage=()=>{
-    this.setState({croppedImageUrl:"",src:"",imgUpload:false})
+    this.setState({imgUpload:false,})
+
     this._toggleModal(4)
+    
   }
   onClickUpload=()=>{
     if(this.state.src===null || this.state.src===""){
@@ -363,9 +366,8 @@ class Appearance extends Component {
                         <input
                           type='file'
                           style={{ display: "none" }}
-                          // onChange={(e) => this._uploadImage(e)}
+                          accept=".gif,.jpg,.jpeg,.png"
                           onChange={this.onSelectFile}
-                          onClick={this.onClickImage}
                         />
                         {this.props.userData.avatarLink ? (
                           <img
